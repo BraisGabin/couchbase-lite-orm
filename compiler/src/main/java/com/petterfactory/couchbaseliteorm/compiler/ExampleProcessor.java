@@ -2,6 +2,7 @@ package com.petterfactory.couchbaseliteorm.compiler;
 
 import com.couchbase.lite.Document;
 import com.google.auto.service.AutoService;
+import com.petterfactory.couchbaseliteorm.Example;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.compiler.Example;
+import com.petterfactory.couchbaseliteorm.Example;
 
 @Example
 public class Person {
