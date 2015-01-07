@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile project(':compiler')
+
+    compile 'com.couchbase.lite:couchbase-lite-java-core:1.0.3'
+}
