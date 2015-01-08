@@ -8,3 +8,6 @@ This is the first approach to implement an ORM for Couchbase Lite in Java. I sti
 - You won't need to extend any class.
 - You will only need to annotate your classes.
 - This library will not use reflexion. The reflexion is *too* slow.
+
+## License
+Apache License 2.0
