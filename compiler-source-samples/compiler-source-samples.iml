@@ -26,7 +26,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="compiler" exported="" />
+    <orderEntry type="module" module-name="core" exported="" />
     <orderEntry type="library" exported="" name="couchbase-lite-java-core-1.0.3" level="project" />
     <orderEntry type="library" exported="" name="stateless4j-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-mapper-asl-1.9.2" level="project" />
