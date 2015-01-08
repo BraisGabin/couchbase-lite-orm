@@ -1,6 +1,6 @@
 # Couchbase-Lite-ORM
 
-This is the first approach to implement an ORM for Couchbase Lite in Java. I still working on it.
+This is the first approach to implement an ORM for Couchbase Lite in Java. I'm still working on it.
 
 ## Main ideas
 - Couchbase Lite's API is pretty good, I wont hide it.
