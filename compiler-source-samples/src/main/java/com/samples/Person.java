@@ -1,16 +1,16 @@
 package com.samples;
 
 import com.petterfactory.couchbaseliteorm.Example;
+import com.petterfactory.couchbaseliteorm.ExampleField;
 
 @Example
 public class Person {
-  private final String name;
-  private final Integer age;
 
-  public Person(String name, Integer age) {
-    this.name = name;
-    this.age = age;
-  }
+  @ExampleField("name")
+  String name;
+
+  @ExampleField("age")
+  Integer age;
 
   public String getName() {
     return name;

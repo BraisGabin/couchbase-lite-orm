@@ -80,10 +80,12 @@ public class ExampleProcessor extends AbstractProcessor {
         )
         .beginType(className, "class", EnumSet.of(Modifier.PUBLIC, Modifier.ABSTRACT))
         .beginMethod(model.getClassName(), "get", EnumSet.of(Modifier.PUBLIC, Modifier.STATIC), "Document", "document")
-        .emitStatement("Map<String, Object> properties = document.getProperties()")
-        .emitStatement("String name = (String) properties.get(\"name\")")
-        .emitStatement("Integer age = (Integer) properties.get(\"age\")")
-        .emitStatement("return new Person(name, age)")
+        .emitStatement("%s object = new %s()", model.getClassName(), model.getClassName())
+        .emitStatement("Map<String, Object> properties = document.getProperties()");
+    for (ExampleFieldModel fieldModel : model.getFields()) {
+      writer.emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
+    }
+    writer.emitStatement("return object")
         .endMethod()
         .endType()
         .close();

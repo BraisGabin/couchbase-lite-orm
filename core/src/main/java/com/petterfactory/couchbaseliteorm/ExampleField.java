@@ -2,11 +2,12 @@ package com.petterfactory.couchbaseliteorm;
 
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
 
 /**
  * Created by brais on 6/1/15.
  */
-@Target(TYPE)
-public @interface Example {
+@Target(FIELD)
+public @interface ExampleField {
+  String value();
 }
