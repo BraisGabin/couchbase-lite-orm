@@ -24,12 +24,6 @@ public class ExampleModel {
   public String getPackageName() {
     final String simpleName = element.getSimpleName().toString();
     final String qualifiedName = element.getQualifiedName().toString();
-    final String packageName;
-    if (simpleName.length() == qualifiedName.length()) {
-      packageName = "";
-    } else {
-      packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
-    }
-    return packageName;
+    return qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
   }
 }

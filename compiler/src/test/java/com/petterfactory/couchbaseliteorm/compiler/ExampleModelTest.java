@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by brais on 7/1/15.
  */
-public class ExempleModelTest {
+public class ExampleModelTest {
 
   @Test
   public void checkGetElement() {
@@ -48,20 +48,5 @@ public class ExempleModelTest {
     ExampleModel exampleModel = new ExampleModel(element);
 
     ASSERT.that("com.example").isEqualTo(exampleModel.getPackageName());
-  }
-
-  @Test
-  public void checkGetPackageName_default() {
-    Name simpleName = mock(Name.class);
-    when(simpleName.toString()).thenReturn("Test");
-    Name qualifiedName = mock(Name.class);
-    when(qualifiedName.toString()).thenReturn("Test");
-    TypeElement element = mock(TypeElement.class);
-    when(element.getSimpleName()).thenReturn(simpleName);
-    when(element.getQualifiedName()).thenReturn(qualifiedName);
-
-    ExampleModel exampleModel = new ExampleModel(element);
-
-    ASSERT.that("").isEqualTo(exampleModel.getPackageName());
   }
 }
