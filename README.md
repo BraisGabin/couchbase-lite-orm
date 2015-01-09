@@ -1,4 +1,4 @@
-# Couchbase-Lite-ORM
+# Couchbase-Lite-ORM [![Build Status](https://travis-ci.org/BraisGabin/couchbase-lite-orm.svg?branch=master)](https://travis-ci.org/BraisGabin/couchbase-lite-orm)
 
 This is the first approach to implement an ORM for Couchbase Lite in Java. I'm still working on it.
 
