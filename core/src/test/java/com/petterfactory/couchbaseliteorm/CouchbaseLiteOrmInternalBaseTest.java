@@ -3,7 +3,9 @@ package com.petterfactory.couchbaseliteorm;
 import com.couchbase.lite.Document;
 import com.samples.Person;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -20,6 +22,9 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Document.class)
 public class CouchbaseLiteOrmInternalBaseTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void checkGet_correct() {
@@ -47,12 +52,9 @@ public class CouchbaseLiteOrmInternalBaseTest {
 
     CouchbaseLiteOrmInternalBase orm = new CouchbaseLiteOrmInternal();
 
-    try {
-      orm.get(document);
-      ASSERT.fail();
-    } catch (IllegalArgumentException e) {
-      ASSERT.that(e.getMessage()).isEqualTo("The document foo doesn't have set the \"type\" property.");
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("The document foo doesn't have set the \"type\" property.");
+    orm.get(document);
   }
 
   @Test
@@ -65,11 +67,8 @@ public class CouchbaseLiteOrmInternalBaseTest {
 
     CouchbaseLiteOrmInternalBase orm = new CouchbaseLiteOrmInternal();
 
-    try {
-      orm.get(document);
-      ASSERT.fail();
-    } catch (IllegalArgumentException e) {
-      ASSERT.that(e.getMessage()).isEqualTo("Unknown type bar at document foo.");
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Unknown type bar at document foo.");
+    orm.get(document);
   }
 }
