@@ -3,7 +3,7 @@ package com.samples;
 import com.petterfactory.couchbaseliteorm.Example;
 import com.petterfactory.couchbaseliteorm.ExampleField;
 
-@Example
+@Example("person")
 public class Person {
 
   @ExampleField("name")

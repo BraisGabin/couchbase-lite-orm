@@ -47,13 +47,14 @@ public class ExampleProcessorTest {
   @Test
   public void simpleCompile() throws IOException {
     final JavaFileObject inputFile = getJavaFileObject(compilerPath, "com.samples.Person");
-    final JavaFileObject expectedFile = getJavaFileObject(compilerPath, "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
 
     ASSERT.about(javaSource())
         .that(inputFile)
         .processedWith(exampleProcessors())
         .compilesWithoutError()
         .and()
-        .generatesSources(expectedFile);
+        .generatesSources(expectedFile1, expectedFile2);
   }
 }

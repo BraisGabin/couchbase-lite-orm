@@ -1,5 +1,6 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
+import com.petterfactory.couchbaseliteorm.Example;
 import com.petterfactory.couchbaseliteorm.ExampleField;
 
 import java.util.ArrayList;
@@ -28,6 +29,10 @@ public class ExampleModel {
     return element.getSimpleName().toString();
   }
 
+  public String getClassQualifiedName() {
+    return element.getQualifiedName().toString();
+  }
+
   public String getMapperClassName() {
     return element.getSimpleName().toString() + "$$Mapper";
   }
@@ -36,6 +41,10 @@ public class ExampleModel {
     final String simpleName = element.getSimpleName().toString();
     final String qualifiedName = element.getQualifiedName().toString();
     return qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
+  }
+
+  public String getAnnotationValue() {
+    return element.getAnnotation(Example.class).value();
   }
 
   public List<ExampleFieldModel> getFields() {

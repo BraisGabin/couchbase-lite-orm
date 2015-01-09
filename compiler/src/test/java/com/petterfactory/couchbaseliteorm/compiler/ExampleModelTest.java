@@ -1,5 +1,6 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
+import com.petterfactory.couchbaseliteorm.Example;
 import com.petterfactory.couchbaseliteorm.ExampleField;
 
 import org.junit.Test;
@@ -49,6 +50,18 @@ public class ExampleModelTest {
   }
 
   @Test
+  public void checkGetClassQualifiedName() {
+    Name qualifiedName = mock(Name.class);
+    when(qualifiedName.toString()).thenReturn("com.example.Test");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getQualifiedName()).thenReturn(qualifiedName);
+
+    ExampleModel exampleModel = new ExampleModel(element);
+
+    ASSERT.that("com.example.Test").isEqualTo(exampleModel.getClassQualifiedName());
+  }
+
+  @Test
   public void checkGetMapperClassName() {
     Name simpleName = mock(Name.class);
     when(simpleName.toString()).thenReturn("Test");
@@ -73,6 +86,18 @@ public class ExampleModelTest {
     ExampleModel exampleModel = new ExampleModel(element);
 
     ASSERT.that("com.example").isEqualTo(exampleModel.getPackageName());
+  }
+
+  @Test
+  public void checkGetMapProperty() {
+    Example annotation = mock(Example.class);
+    when(annotation.value()).thenReturn("foo");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+
+    ExampleModel model = new ExampleModel(element);
+
+    ASSERT.that("foo").isEqualTo(model.getAnnotationValue());
   }
 
   @Test

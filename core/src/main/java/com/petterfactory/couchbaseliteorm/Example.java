@@ -9,4 +9,6 @@ import static java.lang.annotation.ElementType.TYPE;
  */
 @Target(TYPE)
 public @interface Example {
+
+  String value();
 }
