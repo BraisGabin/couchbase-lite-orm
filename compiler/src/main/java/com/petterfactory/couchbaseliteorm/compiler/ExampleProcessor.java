@@ -1,6 +1,5 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
-import com.couchbase.lite.Document;
 import com.google.auto.service.AutoService;
 import com.petterfactory.couchbaseliteorm.Example;
 import com.squareup.javawriter.JavaWriter;
@@ -19,9 +18,12 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+
+import static javax.lang.model.element.Modifier.ABSTRACT;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 
 /**
  * Created by brais on 6/1/15.
@@ -42,12 +44,12 @@ public class ExampleProcessor extends AbstractProcessor {
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     List<ExampleModel> models = parseExampleAnnotations(roundEnv);
-    for (ExampleModel model : models) {
-      try {
+    try {
+      for (ExampleModel model : models) {
         emitExampleCode(model);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
       }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
 
     return false;
@@ -75,13 +77,11 @@ public class ExampleProcessor extends AbstractProcessor {
     writer
         .emitPackage(classPackage)
         .emitImports(
-            Document.class,
             Map.class
         )
-        .beginType(className, "class", EnumSet.of(Modifier.PUBLIC, Modifier.ABSTRACT))
-        .beginMethod(model.getClassName(), "get", EnumSet.of(Modifier.PUBLIC, Modifier.STATIC), "Document", "document")
-        .emitStatement("%s object = new %s()", model.getClassName(), model.getClassName())
-        .emitStatement("Map<String, Object> properties = document.getProperties()");
+        .beginType(className, "class", EnumSet.of(PUBLIC, ABSTRACT))
+        .beginMethod(model.getClassName(), "get", EnumSet.of(PUBLIC, STATIC), "Map<String, Object>", "properties")
+        .emitStatement("final %s object = new %s()", model.getClassName(), model.getClassName());
     for (ExampleFieldModel fieldModel : model.getFields()) {
       writer.emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
     }
