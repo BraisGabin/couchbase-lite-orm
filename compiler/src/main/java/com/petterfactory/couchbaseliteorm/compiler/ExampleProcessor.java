@@ -127,6 +127,7 @@ public class ExampleProcessor extends AbstractProcessor {
     }
     writer.endConstructor()
         .emitAnnotation(Override.class)
+        .emitAnnotation(SuppressWarnings.class, "\"unchecked\"")
         .beginMethod("<T> T", "get", EnumSet.of(PROTECTED), "Map<String, Object>", "properties", "Class<T>", "documentType")
         .emitStatement("final T object");
     boolean first = true;

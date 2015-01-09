@@ -25,6 +25,7 @@ abstract class CouchbaseLiteOrmInternalBase {
     if (sDocumentType == null) {
       throw new IllegalArgumentException("The document " + document.getId() + " doesn't have set the \"type\" property.");
     }
+    @SuppressWarnings("unchecked")
     final Class<T> documentType = (Class<T>) typesMapper.get(sDocumentType);
     if (documentType == null) {
       throw new IllegalArgumentException("Unknown type " + sDocumentType + " at document " + document.getId() + ".");

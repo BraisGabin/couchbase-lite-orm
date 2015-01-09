@@ -15,6 +15,7 @@ class CouchbaseLiteOrmInternal extends CouchbaseLiteOrmInternalBase {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected <T> T get(Map<String, Object> properties, Class<T> documentType) {
     final T object;
     if (documentType.equals(Person.class)) {
