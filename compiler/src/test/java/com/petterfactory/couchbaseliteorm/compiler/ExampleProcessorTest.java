@@ -47,7 +47,7 @@ public class ExampleProcessorTest {
   @Test
   public void simpleCompile() throws IOException {
     final JavaFileObject inputFile = getJavaFileObject(compilerPath, "com.samples.Person");
-    final JavaFileObject expectedFile = getJavaFileObject(compilerPath, "com.samples.Person$$Example");
+    final JavaFileObject expectedFile = getJavaFileObject(compilerPath, "com.samples.Person$$Mapper");
 
     ASSERT.about(javaSource())
         .that(inputFile)

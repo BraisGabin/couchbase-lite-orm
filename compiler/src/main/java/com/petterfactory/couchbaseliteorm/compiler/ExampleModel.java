@@ -28,6 +28,10 @@ public class ExampleModel {
     return element.getSimpleName().toString();
   }
 
+  public String getMapperClassName() {
+    return element.getSimpleName().toString() + "$$Mapper";
+  }
+
   public String getPackageName() {
     final String simpleName = element.getSimpleName().toString();
     final String qualifiedName = element.getQualifiedName().toString();

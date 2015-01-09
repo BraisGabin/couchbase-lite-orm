@@ -49,6 +49,18 @@ public class ExampleModelTest {
   }
 
   @Test
+  public void checkGetMapperClassName() {
+    Name simpleName = mock(Name.class);
+    when(simpleName.toString()).thenReturn("Test");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getSimpleName()).thenReturn(simpleName);
+
+    ExampleModel exampleModel = new ExampleModel(element);
+
+    ASSERT.that("Test$$Mapper").isEqualTo(exampleModel.getMapperClassName());
+  }
+
+  @Test
   public void checkGetPackageName() {
     Name simpleName = mock(Name.class);
     when(simpleName.toString()).thenReturn("Test");

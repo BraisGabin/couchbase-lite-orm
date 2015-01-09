@@ -68,7 +68,7 @@ public class ExampleProcessor extends AbstractProcessor {
     final Filer filer = this.processingEnv.getFiler();
 
     final String classPackage = model.getPackageName();
-    final String className = model.getClassName() + "$$Example";
+    final String className = model.getMapperClassName();
 
     JavaFileObject sourceFile = filer.createSourceFile(classPackage + "." + className, model.getElement());
 
