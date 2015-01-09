@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.tools.JavaFileObject;
@@ -21,6 +22,19 @@ import static com.petterfactory.couchbaseliteorm.compiler.TestProcessors.example
 public class ExampleProcessorTest {
   private String compilerPath;
 
+  private static JavaFileObject getJavaFileObject(String compilerPath, String fullyQualifiedName) throws IOException {
+    return JavaFileObjects.forSourceString(fullyQualifiedName,
+        new String(Files.readAllBytes(qualifiedNameToPath(compilerPath, fullyQualifiedName)), "UTF-8")
+    );
+  }
+
+  private static Path qualifiedNameToPath(String compilerPath, String fullyQualifiedName) {
+    return Paths.get(compilerPath
+        + "/../compiler-source-samples/src/main/java/"
+        + fullyQualifiedName.replaceAll("\\.", "/")
+        + ".java");
+  }
+
   @Before
   public void init() {
     // FIXME this is a workaround.
@@ -32,12 +46,8 @@ public class ExampleProcessorTest {
 
   @Test
   public void simpleCompile() throws IOException {
-    final JavaFileObject inputFile = JavaFileObjects.forSourceString("com.samples.Person",
-        new String(Files.readAllBytes(Paths.get(compilerPath + "/../compiler-source-samples/src/main/java/com/samples/Person.java")), "UTF-8")
-    );
-    final JavaFileObject expectedFile = JavaFileObjects.forSourceString("com.samples.Person$$Example",
-        new String(Files.readAllBytes(Paths.get(compilerPath + "/../compiler-source-samples/src/main/java/com/samples/Person$$Example.java")), "UTF-8")
-    );
+    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "com.samples.Person");
+    final JavaFileObject expectedFile = getJavaFileObject(compilerPath, "com.samples.Person$$Example");
 
     ASSERT.about(javaSource())
         .that(inputFile)
