@@ -9,14 +9,14 @@ import java.util.Map;
  * Created by brais on 9/1/15.
  */
 abstract class CouchbaseLiteOrmInternalBase {
-  private final Map<String, Class<?>> typesMapper;
+  private final Map<String, Wrapper<?>> typeWrappers;
 
   protected CouchbaseLiteOrmInternalBase() {
-    this.typesMapper = new HashMap<>();
+    this.typeWrappers = new HashMap<>();
   }
 
-  protected void registerType(String typeName, Class<?> type) {
-    typesMapper.put(typeName, type);
+  protected void registerType(String typeName, Wrapper<?> type) {
+    typeWrappers.put(typeName, type);
   }
 
   <T> T get(Document document) {
@@ -26,12 +26,14 @@ abstract class CouchbaseLiteOrmInternalBase {
       throw new IllegalArgumentException("The document " + document.getId() + " doesn't have set the \"type\" property.");
     }
     @SuppressWarnings("unchecked")
-    final Class<T> documentType = (Class<T>) typesMapper.get(sDocumentType);
-    if (documentType == null) {
+    final Wrapper<T> wrapper = (Wrapper<T>) typeWrappers.get(sDocumentType);
+    if (wrapper == null) {
       throw new IllegalArgumentException("Unknown type " + sDocumentType + " at document " + document.getId() + ".");
     }
-    return get(properties, documentType);
+    return wrapper.get(properties);
   }
 
-  protected abstract <T> T get(Map<String, Object> properties, Class<T> documentType);
+  interface Wrapper<T> {
+    T get(Map<String, Object> properties);
+  }
 }

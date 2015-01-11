@@ -11,22 +11,13 @@ import java.util.Map;
 class CouchbaseLiteOrmInternal extends CouchbaseLiteOrmInternalBase {
   CouchbaseLiteOrmInternal() {
     super();
-    registerType("person", Person.class);
+    registerType("person", new Person$$Wrapper());
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  protected <T> T get(Map<String, Object> properties, Class<T> documentType) {
-    final T object;
-    if (documentType.equals(Person.class)) {
-      object = (T) getPerson(properties);
-    } else {
-      throw new IllegalStateException("If you are getting this error please, report it.");
+  private static class Person$$Wrapper implements Wrapper<Person> {
+    @Override
+    public Person get(Map<String, Object> properties) {
+      return Person$$Mapper.get(properties);
     }
-    return object;
-  }
-
-  private static Person getPerson(Map<String, Object> properties) {
-    return Person$$Mapper.get(properties);
   }
 }

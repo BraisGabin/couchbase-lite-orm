@@ -25,7 +25,6 @@ import javax.tools.JavaFileObject;
 
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
@@ -123,34 +122,17 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitStatement("super()");
     for (ExampleModel model : models) {
       writer
-          .emitStatement("registerType(\"%s\", %s)", model.getAnnotationValue(), model.getClassName() + ".class");
+          .emitStatement("registerType(\"%s\", new %s$$Wrapper())", model.getAnnotationValue(), model.getClassName());
     }
-    writer.endConstructor()
-        .emitAnnotation(Override.class)
-        .emitAnnotation(SuppressWarnings.class, "\"unchecked\"")
-        .beginMethod("<T> T", "get", EnumSet.of(PROTECTED), "Map<String, Object>", "properties", "Class<T>", "documentType")
-        .emitStatement("final T object");
-    boolean first = true;
-    for (ExampleModel model : models) {
-      if (first) {
-        first = false;
-        writer.beginControlFlow("if (documentType.equals(%s.class))", model.getClassName());
-      } else {
-        writer.nextControlFlow("else if (documentType.equals(%s.class))", model.getClassName());
-      }
-      writer.emitStatement("object = (T) get%s(properties)", model.getClassName());
-    }
-    writer
-        .nextControlFlow("else")
-        .emitStatement("throw new IllegalStateException(\"If you are getting this error please, report it.\")")
-        .endControlFlow()
-        .emitStatement("return object")
-        .endMethod();
+    writer.endConstructor();
     for (ExampleModel model : models) {
       writer
-          .beginMethod(model.getClassName(), "get" + model.getClassName(), EnumSet.of(PRIVATE, STATIC), "Map<String, Object>", "properties")
+          .beginType(model.getClassName() + "$$Wrapper", "class", EnumSet.of(PRIVATE, STATIC), null, "Wrapper<" + model.getClassName() + ">")
+          .emitAnnotation(Override.class)
+          .beginMethod(model.getClassName(), "get", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
           .emitStatement("return %s$$Mapper.get(properties)", model.getClassName())
-          .endMethod();
+          .endMethod()
+          .endType();
     }
     writer
         .endType()
