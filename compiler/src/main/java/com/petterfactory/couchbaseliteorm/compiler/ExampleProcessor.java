@@ -2,11 +2,11 @@ package com.petterfactory.couchbaseliteorm.compiler;
 
 import com.google.auto.service.AutoService;
 import com.petterfactory.couchbaseliteorm.Example;
+import com.petterfactory.couchbaseliteorm.Mapper;
 import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -23,10 +23,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 
-import static javax.lang.model.element.Modifier.ABSTRACT;
-import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static javax.lang.model.element.Modifier.STATIC;
 
 /**
  * Created by brais on 6/1/15.
@@ -75,21 +72,24 @@ public class ExampleProcessor extends AbstractProcessor {
   private void emitExampleCode(ExampleModel model) throws IOException {
     final Filer filer = this.processingEnv.getFiler();
 
-    final String classPackage = model.getPackageName();
-    final String className = model.getMapperClassName();
+    final String className = model.getClassName();
+    final String packageName = model.getPackageName();
+    final String mapperClassName = model.getMapperClassName();
 
-    JavaFileObject sourceFile = filer.createSourceFile(classPackage + "." + className, model.getElement());
+    JavaFileObject sourceFile = filer.createSourceFile(packageName + "." + mapperClassName, model.getElement());
 
     JavaWriter writer = new JavaWriter(sourceFile.openWriter());
 
     writer
-        .emitPackage(classPackage)
+        .emitPackage(packageName)
         .emitImports(
-            Map.class
+            Map.class,
+            Mapper.class
         )
-        .beginType(className, "class", EnumSet.of(PUBLIC, ABSTRACT))
-        .beginMethod(model.getClassName(), "get", EnumSet.of(PUBLIC, STATIC), "Map<String, Object>", "properties")
-        .emitStatement("final %s object = new %s()", model.getClassName(), model.getClassName());
+        .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">")
+        .emitAnnotation(Override.class)
+        .beginMethod(className, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
+        .emitStatement("final %s object = new %s()", className, className);
     for (ExampleFieldModel fieldModel : model.getFields()) {
       writer.emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
     }
@@ -109,10 +109,7 @@ public class ExampleProcessor extends AbstractProcessor {
 
     JavaWriter writer = new JavaWriter(sourceFile.openWriter());
 
-    List<String> imports = new ArrayList<>(Arrays.asList(
-        Map.class.getCanonicalName()
-    ));
-    imports.addAll(getArrayClasses(models));
+    List<String> imports = getArrayClasses(models);
 
     writer
         .emitPackage(classPackage)
@@ -122,19 +119,10 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitStatement("super()");
     for (ExampleModel model : models) {
       writer
-          .emitStatement("registerType(\"%s\", new %s$$Wrapper())", model.getAnnotationValue(), model.getClassName());
-    }
-    writer.endConstructor();
-    for (ExampleModel model : models) {
-      writer
-          .beginType(model.getClassName() + "$$Wrapper", "class", EnumSet.of(PRIVATE, STATIC), null, "Wrapper<" + model.getClassName() + ">")
-          .emitAnnotation(Override.class)
-          .beginMethod(model.getClassName(), "get", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
-          .emitStatement("return %s$$Mapper.get(properties)", model.getClassName())
-          .endMethod()
-          .endType();
+          .emitStatement("registerType(\"%s\", new %s$$Mapper())", model.getAnnotationValue(), model.getClassName());
     }
     writer
+        .endConstructor()
         .endType()
         .close();
   }
@@ -153,7 +141,6 @@ public class ExampleProcessor extends AbstractProcessor {
     final List<String> classes = new ArrayList<>(size);
     for (ExampleModel model : models) {
       final String classQualifiedName = model.getClassQualifiedName();
-      classes.add(classQualifiedName);
       classes.add(classQualifiedName + "$$Mapper");
     }
     return classes;

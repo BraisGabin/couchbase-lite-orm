@@ -30,7 +30,7 @@ public class CouchbaseLiteOrmTest {
     properties.put("age", 23);
     when(document.getProperties()).thenReturn(properties);
 
-    Person person = CouchbaseLiteOrm.get(document);
+    Person person = CouchbaseLiteOrm.toObject(document);
 
     ASSERT.that(person.getName()).isEqualTo("Pepe");
 

@@ -37,7 +37,7 @@ public class CouchbaseLiteOrmInternalBaseTest {
 
     CouchbaseLiteOrmInternalBase orm = new CouchbaseLiteOrmInternal();
 
-    Person person = orm.get(document);
+    Person person = orm.toObject(document);
 
     ASSERT.that(person.getName()).isEqualTo("Pepe");
     ASSERT.that(person.getAge()).isEqualTo(23);
@@ -54,7 +54,7 @@ public class CouchbaseLiteOrmInternalBaseTest {
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("The document foo doesn't have set the \"type\" property.");
-    orm.get(document);
+    orm.toObject(document);
   }
 
   @Test
@@ -69,6 +69,6 @@ public class CouchbaseLiteOrmInternalBaseTest {
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Unknown type bar at document foo.");
-    orm.get(document);
+    orm.toObject(document);
   }
 }

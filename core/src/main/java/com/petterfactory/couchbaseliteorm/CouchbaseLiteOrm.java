@@ -19,7 +19,7 @@ public class CouchbaseLiteOrm {
   }
 
   // TODO Document
-  public static <T> T get(Document document) {
-    return internal.get(document);
+  public static <T> T toObject(Document document) {
+    return internal.toObject(document);
   }
 }
