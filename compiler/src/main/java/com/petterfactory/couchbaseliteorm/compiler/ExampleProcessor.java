@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +85,7 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitPackage(packageName)
         .emitImports(
             Map.class,
+            HashMap.class,
             Mapper.class
         )
         .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">")
@@ -94,6 +96,15 @@ public class ExampleProcessor extends AbstractProcessor {
       writer.emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
     }
     writer.emitStatement("return object")
+        .endMethod()
+        .emitAnnotation(Override.class)
+        .beginMethod("Map<String, Object>", "toProperties", EnumSet.of(PUBLIC), className, "object")
+        .emitStatement("final Map<String, Object> properties = new HashMap<>()")
+        .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
+    for (ExampleFieldModel fieldModel : model.getFields()) {
+      writer.emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
+    }
+    writer.emitStatement("return properties")
         .endMethod()
         .endType()
         .close();
@@ -114,12 +125,11 @@ public class ExampleProcessor extends AbstractProcessor {
     writer
         .emitPackage(classPackage)
         .emitImports(imports)
-        .beginType(className, "class", EMPTY_SET, "CouchbaseLiteOrmInternalBase")
-        .beginConstructor(EMPTY_SET)
-        .emitStatement("super()");
+        .beginType(className, "class", EMPTY_SET, "CouchbaseLiteOrm")
+        .beginConstructor(EMPTY_SET);
     for (ExampleModel model : models) {
       writer
-          .emitStatement("registerType(\"%s\", new %s$$Mapper())", model.getAnnotationValue(), model.getClassName());
+          .emitStatement("registerType(\"%s\", %s.class, new %s$$Mapper())", model.getAnnotationValue(), model.getClassName(), model.getClassName());
     }
     writer
         .endConstructor()
@@ -141,6 +151,7 @@ public class ExampleProcessor extends AbstractProcessor {
     final List<String> classes = new ArrayList<>(size);
     for (ExampleModel model : models) {
       final String classQualifiedName = model.getClassQualifiedName();
+      classes.add(classQualifiedName);
       classes.add(classQualifiedName + "$$Mapper");
     }
     return classes;

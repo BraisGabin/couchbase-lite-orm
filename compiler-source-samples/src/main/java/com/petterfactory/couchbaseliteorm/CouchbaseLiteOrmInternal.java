@@ -1,13 +1,13 @@
 package com.petterfactory.couchbaseliteorm;
 
+import com.samples.Person;
 import com.samples.Person$$Mapper;
 
 /**
  * Created by brais on 7/1/15.
  */
-class CouchbaseLiteOrmInternal extends CouchbaseLiteOrmInternalBase {
+class CouchbaseLiteOrmInternal extends CouchbaseLiteOrm {
   CouchbaseLiteOrmInternal() {
-    super();
-    registerType("person", new Person$$Mapper());
+    registerType("person", Person.class, new Person$$Mapper());
   }
 }
