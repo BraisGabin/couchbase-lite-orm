@@ -105,7 +105,6 @@ public class CouchbaseLiteOrmTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void checkToDocument_unknownClass() throws CouchbaseLiteException {
     Document document = PowerMockito.mock(Document.class); // FIXME remove PowerMockito
 
