@@ -2,12 +2,17 @@ package com.petterfactory.couchbaseliteorm.compiler;
 
 import com.petterfactory.couchbaseliteorm.ExampleField;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.lang.model.element.VariableElement;
 
 /**
  * Created by brais on 7/1/15.
  */
 public class ExampleFieldModel {
+  private final static Pattern pattern = Pattern.compile("^(.*)<(.*)>$");
+
   private final VariableElement element;
 
   public ExampleFieldModel(VariableElement element) {
@@ -23,8 +28,38 @@ public class ExampleFieldModel {
   }
 
   public String getTypeSimpleName() {
-    String name = element.asType().toString();
-    return name.substring(name.lastIndexOf(".") + 1);
+    final String fullQualifiedName = element.asType().toString();
+    return clean(fullQualifiedName);
+  }
+
+  private static String clean(String fullQualifiedName) {
+    Matcher matcher = pattern.matcher(fullQualifiedName);
+    final String simpleName;
+    if (matcher.matches()) {
+      final StringBuilder builder = new StringBuilder();
+      builder
+          .append(removePackage(matcher.group(1)))
+          .append("<");
+      final String[] split = matcher.group(2).split(",");
+      boolean first = true;
+      for (String s : split) {
+        if (first) {
+          first = false;
+        } else {
+          builder.append(", ");
+        }
+        builder.append(clean(s.trim()));
+      }
+      builder.append(">");
+      simpleName = builder.toString();
+    } else {
+      simpleName = removePackage(fullQualifiedName);
+    }
+    return simpleName;
+  }
+
+  private static String removePackage(String fullQualifiedName) {
+    return fullQualifiedName.substring(fullQualifiedName.lastIndexOf(".") + 1);
   }
 
   public String getTypeQualifiedName() {

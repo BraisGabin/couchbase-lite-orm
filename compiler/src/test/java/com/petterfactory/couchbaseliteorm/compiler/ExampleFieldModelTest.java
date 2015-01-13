@@ -52,6 +52,30 @@ public class ExampleFieldModelTest {
   }
 
   @Test
+  public void checkGetTypeSimpleName_generics() {
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo<com.example.Bar>");
+    VariableElement element = mock(VariableElement.class);
+    when(element.asType()).thenReturn(typeMirror);
+
+    ExampleFieldModel model = new ExampleFieldModel(element);
+
+    ASSERT.that("Foo<Bar>").isEqualTo(model.getTypeSimpleName());
+  }
+
+  @Test
+  public void checkGetTypeSimpleName_genericsMultiples() {
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo<com.example.Bar, com.example.Baz>");
+    VariableElement element = mock(VariableElement.class);
+    when(element.asType()).thenReturn(typeMirror);
+
+    ExampleFieldModel model = new ExampleFieldModel(element);
+
+    ASSERT.that("Foo<Bar, Baz>").isEqualTo(model.getTypeSimpleName());
+  }
+
+  @Test
   public void checkGetTypeQualifiedName() {
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.toString()).thenReturn("com.example.Foo");
