@@ -5,6 +5,8 @@ import com.petterfactory.couchbaseliteorm.ExampleField;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import java.util.Arrays;
+
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -85,6 +87,42 @@ public class ExampleFieldModelTest {
     ExampleFieldModel model = new ExampleFieldModel(element);
 
     ASSERT.that("com.example.Foo").isEqualTo(model.getTypeQualifiedName());
+  }
+
+  @Test
+  public void checkGetTypeQualifiedNames() {
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo");
+    VariableElement element = mock(VariableElement.class);
+    when(element.asType()).thenReturn(typeMirror);
+
+    ExampleFieldModel model = new ExampleFieldModel(element);
+
+    ASSERT.that(Arrays.asList("com.example.Foo")).isEqualTo(model.getTypeQualifiedNames());
+  }
+
+  @Test
+  public void checkGetTypeQualifiedNames_generics() {
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo<com.example.Bar>");
+    VariableElement element = mock(VariableElement.class);
+    when(element.asType()).thenReturn(typeMirror);
+
+    ExampleFieldModel model = new ExampleFieldModel(element);
+
+    ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar")).isEqualTo(model.getTypeQualifiedNames());
+  }
+
+  @Test
+  public void checkGetTypeQualifiedNames_genericsMultiples() {
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo<com.example.Bar, com.example.Baz>");
+    VariableElement element = mock(VariableElement.class);
+    when(element.asType()).thenReturn(typeMirror);
+
+    ExampleFieldModel model = new ExampleFieldModel(element);
+
+    ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar", "com.example.Baz")).isEqualTo(model.getTypeQualifiedNames());
   }
 
   @Test

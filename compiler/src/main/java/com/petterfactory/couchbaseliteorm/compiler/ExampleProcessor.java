@@ -7,9 +7,12 @@ import com.squareup.javawriter.JavaWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,13 +84,19 @@ public class ExampleProcessor extends AbstractProcessor {
 
     JavaWriter writer = new JavaWriter(sourceFile.openWriter());
 
+    Set<String> imports = new HashSet<>(Arrays.asList(
+        Map.class.getTypeName(),
+        HashMap.class.getTypeName(),
+        Mapper.class.getTypeName()
+    ));
+    for (ExampleFieldModel fieldModel : model.getFields()) {
+      imports.addAll(fieldModel.getTypeQualifiedNames());
+    }
+    removeJavaLangImports(imports);
+
     writer
         .emitPackage(packageName)
-        .emitImports(
-            Map.class,
-            HashMap.class,
-            Mapper.class
-        )
+        .emitImports(imports)
         .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">")
         .emitAnnotation(Override.class)
         .beginMethod(className, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
@@ -156,4 +165,14 @@ public class ExampleProcessor extends AbstractProcessor {
     }
     return classes;
   }
+
+  private static void removeJavaLangImports(Iterable<String> imports) {
+    final Iterator<String> iterator = imports.iterator();
+    while (iterator.hasNext()) {
+      if (iterator.next().startsWith("java.lang.")) {
+        iterator.remove();
+      }
+    }
+  }
+
 }

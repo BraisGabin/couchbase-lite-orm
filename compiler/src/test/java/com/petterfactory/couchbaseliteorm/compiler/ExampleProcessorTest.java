@@ -59,4 +59,18 @@ public class ExampleProcessorTest {
         .and()
         .generatesSources(expectedFile1, expectedFile2);
   }
+
+  @Test
+  public void listsCompile() throws IOException {
+    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "lists", "com.samples.Person");
+    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "lists", "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "lists", "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+
+    ASSERT.about(javaSource())
+        .that(inputFile)
+        .processedWith(exampleProcessors())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedFile1, expectedFile2);
+  }
 }

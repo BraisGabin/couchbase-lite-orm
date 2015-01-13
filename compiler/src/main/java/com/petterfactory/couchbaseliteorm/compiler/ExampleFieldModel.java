@@ -2,6 +2,9 @@ package com.petterfactory.couchbaseliteorm.compiler;
 
 import com.petterfactory.couchbaseliteorm.ExampleField;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,18 +32,18 @@ public class ExampleFieldModel {
 
   public String getTypeSimpleName() {
     final String fullQualifiedName = element.asType().toString();
-    return clean(fullQualifiedName);
+    return getTypeSimpleName(fullQualifiedName);
   }
 
-  private static String clean(String fullQualifiedName) {
+  private static String getTypeSimpleName(String fullQualifiedName) {
     Matcher matcher = pattern.matcher(fullQualifiedName);
     final String simpleName;
     if (matcher.matches()) {
       final StringBuilder builder = new StringBuilder();
       builder
-          .append(removePackage(matcher.group(1)))
+          .append(removePackageName(matcher.group(1)))
           .append("<");
-      final String[] split = matcher.group(2).split(",");
+      final String[] split = matcher.group(2).split(","); // FIXME problems with A<B<C,D>>
       boolean first = true;
       for (String s : split) {
         if (first) {
@@ -48,22 +51,43 @@ public class ExampleFieldModel {
         } else {
           builder.append(", ");
         }
-        builder.append(clean(s.trim()));
+        builder.append(getTypeSimpleName(s.trim()));
       }
       builder.append(">");
       simpleName = builder.toString();
     } else {
-      simpleName = removePackage(fullQualifiedName);
+      simpleName = removePackageName(fullQualifiedName);
     }
     return simpleName;
   }
 
-  private static String removePackage(String fullQualifiedName) {
+  private static String removePackageName(String fullQualifiedName) {
     return fullQualifiedName.substring(fullQualifiedName.lastIndexOf(".") + 1);
   }
 
   public String getTypeQualifiedName() {
     return element.asType().toString();
+  }
+
+  public List<String> getTypeQualifiedNames() {
+    final String fullQualifiedName = element.asType().toString();
+    return getTypeQualifiedNames(fullQualifiedName);
+  }
+
+  private static List<String> getTypeQualifiedNames(String fullQualifiedName) {
+    Matcher matcher = pattern.matcher(fullQualifiedName);
+    final List<String> names;
+    if (matcher.matches()) {
+      names = new ArrayList<>();
+      names.add(matcher.group(1));
+      final String[] split = matcher.group(2).split(","); // FIXME problems with A<B<C,D>>
+      for (String s : split) {
+        names.addAll(getTypeQualifiedNames(s.trim()));
+      }
+    } else {
+      names = Arrays.asList(fullQualifiedName);
+    }
+    return names;
   }
 
   public String getMapProperty() {
