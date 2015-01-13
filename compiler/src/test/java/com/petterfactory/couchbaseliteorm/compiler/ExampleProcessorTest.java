@@ -22,15 +22,17 @@ import static com.petterfactory.couchbaseliteorm.compiler.TestProcessors.example
 public class ExampleProcessorTest {
   private String compilerPath;
 
-  private static JavaFileObject getJavaFileObject(String compilerPath, String fullyQualifiedName) throws IOException {
+  private static JavaFileObject getJavaFileObject(String compilerPath, String sampleName, String fullyQualifiedName) throws IOException {
     return JavaFileObjects.forSourceString(fullyQualifiedName,
-        new String(Files.readAllBytes(qualifiedNameToPath(compilerPath, fullyQualifiedName)), "UTF-8")
+        new String(Files.readAllBytes(qualifiedNameToPath(compilerPath, sampleName, fullyQualifiedName)), "UTF-8")
     );
   }
 
-  private static Path qualifiedNameToPath(String compilerPath, String fullyQualifiedName) {
+  private static Path qualifiedNameToPath(String compilerPath, String sampleName, String fullyQualifiedName) {
     return Paths.get(compilerPath
-        + "/../source-samples/simple/src/main/java/"
+        + "/../source-samples/"
+        + sampleName
+        + "/src/main/java/"
         + fullyQualifiedName.replaceAll("\\.", "/")
         + ".java");
   }
@@ -46,9 +48,9 @@ public class ExampleProcessorTest {
 
   @Test
   public void simpleCompile() throws IOException {
-    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "com.samples.Person");
-    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "com.samples.Person$$Mapper");
-    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "simple", "com.samples.Person");
+    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "simple", "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "simple", "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
 
     ASSERT.about(javaSource())
         .that(inputFile)
