@@ -30,7 +30,7 @@ public class ExampleProcessorTest {
 
   private static Path qualifiedNameToPath(String compilerPath, String fullyQualifiedName) {
     return Paths.get(compilerPath
-        + "/../compiler-source-samples/src/main/java/"
+        + "/../source-samples/simple/src/main/java/"
         + fullyQualifiedName.replaceAll("\\.", "/")
         + ".java");
   }
