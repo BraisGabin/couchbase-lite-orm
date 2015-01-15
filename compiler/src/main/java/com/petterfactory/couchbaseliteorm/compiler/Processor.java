@@ -91,9 +91,9 @@ public class Processor extends AbstractProcessor {
     JavaWriter writer = new JavaWriter(sourceFile.openWriter());
 
     Set<String> imports = new HashSet<>(Arrays.asList(
-        Map.class.getTypeName(),
-        HashMap.class.getTypeName(),
-        Mapper.class.getTypeName()
+        Map.class.getCanonicalName(),
+        HashMap.class.getCanonicalName(),
+        Mapper.class.getCanonicalName()
     ));
     for (FieldModel fieldModel : model.getFields()) {
       imports.addAll(fieldModel.getTypeQualifiedNames());
