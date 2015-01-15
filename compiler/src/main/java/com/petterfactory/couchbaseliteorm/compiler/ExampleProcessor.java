@@ -126,7 +126,9 @@ public class ExampleProcessor extends AbstractProcessor {
             .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
       } else {
         writer
-            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getMapProperty());
+            .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getMapProperty())
+            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getMapProperty())
+            .endControlFlow();
       }
     }
     writer
@@ -146,7 +148,7 @@ public class ExampleProcessor extends AbstractProcessor {
             .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
       } else {
         writer
-            .emitStatement("properties.put(\"%s\", %s.toProperties(object.%s))", fieldModel.getMapProperty(), dependencyModel.getMapperVariableName(), fieldModel.getFieldName());
+            .emitStatement("properties.put(\"%s\", object.%s == null ? null : %s.toProperties(object.%s))", fieldModel.getMapProperty(), fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getFieldName());
       }
     }
     writer

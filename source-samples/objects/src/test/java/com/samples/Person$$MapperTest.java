@@ -1,9 +1,6 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Mapper;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -15,7 +12,7 @@ import static com.google.common.truth.Truth.ASSERT;
 
 public class Person$$MapperTest {
 
-  private Mapper<Person> mapper;
+  private Person$$Mapper mapper;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -23,88 +20,68 @@ public class Person$$MapperTest {
   @Before
   public void setMapper() {
     this.mapper = new Person$$Mapper();
+    this.mapper.addressMapper = new Address$$Mapper();
   }
 
   @Test
   public void toObject() {
     Map<String, Object> properties = new HashMap<>();
-    properties.put("name", "Pepe");
-    properties.put("age", 23);
+    Map<String, Object> addressProperties = new HashMap<>();
+    addressProperties.put("street", "calle");
+    addressProperties.put("number", "7");
+    properties.put("address", addressProperties);
 
     final Person object = mapper.toObject(properties);
 
-    ASSERT.that(object.name).isEqualTo("Pepe");
-    ASSERT.that(object.age).isEqualTo(23);
+    final Person person = new Person();
+    final Address address = new Address();
+    address.street = "calle";
+    address.number = "7";
+    person.address = address;
+    ASSERT.that(object).isEqualTo(person);
   }
 
   @Test
   public void toObject_null() {
     Map<String, Object> properties = new HashMap<>();
-    properties.put("name", null);
-    properties.put("age", 23);
+    properties.put("address", null);
 
     final Person object = mapper.toObject(properties);
 
-    ASSERT.that(object.name).isNull();
-    ASSERT.that(object.age).isEqualTo(23);
-  }
-
-  @Test @Ignore // FIXME I'll fix this latter
-  public void toObject_noAllProperties() {
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("age", 23);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
-    mapper.toObject(properties);
-  }
-
-  @Test @Ignore // FIXME I'll fix this latter
-  public void toObject_nullInPrimitiveTypes() {
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("name", "Pepe");
-    properties.put("age", null);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
-    mapper.toObject(properties);
-  }
-
-  @Test @Ignore // FIXME I'll fix this latter
-  public void toObject_incorrectTypes() {
-    Map<String, Object> properties = new HashMap<>();
-    properties.put("name", "Pepe");
-    properties.put("age", true);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
-    mapper.toObject(properties);
+    final Person person = new Person();
+    ASSERT.that(person).isEqualTo(object);
   }
 
   @Test
   public void toProperties() {
-    Person object = new Person();
-    object.name = "Pepe";
-    object.age = 23;
+    final Person object = new Person();
+    final Address address = new Address();
+    address.street = "calle";
+    address.number = "7";
+    object.address = address;
 
     final Map<String, Object> stringObjectMap = mapper.toProperties(object);
 
-    ASSERT.that(stringObjectMap.get("type")).isEqualTo("person");
-    ASSERT.that(stringObjectMap.get("name")).isEqualTo("Pepe");
-    ASSERT.that(stringObjectMap.get("age")).isEqualTo(23);
+    Map<String, Object> properties = new HashMap<>();
+    Map<String, Object> addressProperties = new HashMap<>();
+    addressProperties.put("street", "calle");
+    addressProperties.put("number", "7");
+    properties.put("address", addressProperties);
+    properties.put("type", "person");
+
+    ASSERT.that(properties).isEqualTo(stringObjectMap);
   }
 
   @Test
   public void toProperties_null() {
-    Person object = new Person();
-    object.name = null;
-    object.age = 23;
+    final Person object = new Person();
 
     final Map<String, Object> stringObjectMap = mapper.toProperties(object);
 
-    ASSERT.that(stringObjectMap.get("type")).isEqualTo("person");
-    ASSERT.that(stringObjectMap.containsKey("name")).isTrue();
-    ASSERT.that(stringObjectMap.get("name")).isNull();
-    ASSERT.that(stringObjectMap.get("age")).isEqualTo(23);
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("address", null);
+    properties.put("type", "person");
+
+    ASSERT.that(properties).isEqualTo(stringObjectMap);
   }
 }
