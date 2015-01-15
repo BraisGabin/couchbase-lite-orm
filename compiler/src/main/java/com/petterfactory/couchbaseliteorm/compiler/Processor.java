@@ -1,7 +1,7 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
 import com.google.auto.service.AutoService;
-import com.petterfactory.couchbaseliteorm.Example;
+import com.petterfactory.couchbaseliteorm.Entity;
 import com.petterfactory.couchbaseliteorm.Mapper;
 import com.squareup.javawriter.JavaWriter;
 
@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -35,11 +34,11 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 /**
  * Created by brais on 6/1/15.
  */
-@AutoService(Processor.class)
-public class ExampleProcessor extends AbstractProcessor {
+@AutoService(javax.annotation.processing.Processor.class)
+public class Processor extends AbstractProcessor {
 
   private final static Set<Modifier> EMPTY_SET = Collections.emptySet();
-  private final List<ExampleModel> models = new ArrayList<>();
+  private final List<EntityModel> models = new ArrayList<>();
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -48,21 +47,21 @@ public class ExampleProcessor extends AbstractProcessor {
 
   @Override
   public Set<String> getSupportedAnnotationTypes() {
-    return Collections.singleton(Example.class.getName());
+    return Collections.singleton(Entity.class.getName());
   }
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    models.addAll(parseExampleAnnotations(roundEnv));
+    models.addAll(parseAnnotations(roundEnv));
     try {
-      for (ExampleModel model : models) {
+      for (EntityModel model : models) {
         model.fillFieldsList(models);
       }
       if (roundEnv.processingOver()) {
-        for (ExampleModel model : models) {
-          emitExampleCode(model);
+        for (EntityModel model : models) {
+          emitMapper(model);
         }
-        emitInternalParser(models);
+        emitCouchbaseLiteOrmInternal(models);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -71,16 +70,16 @@ public class ExampleProcessor extends AbstractProcessor {
     return false;
   }
 
-  private List<ExampleModel> parseExampleAnnotations(RoundEnvironment roundEnv) {
-    Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Example.class);
-    List<ExampleModel> models = new ArrayList<>(elements.size());
+  private List<EntityModel> parseAnnotations(RoundEnvironment roundEnv) {
+    Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Entity.class);
+    List<EntityModel> models = new ArrayList<>(elements.size());
     for (Element element : elements) {
-      models.add(new ExampleModel((TypeElement) element));
+      models.add(new EntityModel((TypeElement) element));
     }
     return models;
   }
 
-  private void emitExampleCode(ExampleModel model) throws IOException {
+  private void emitMapper(EntityModel model) throws IOException {
     final Filer filer = this.processingEnv.getFiler();
 
     final String className = model.getClassName();
@@ -96,7 +95,7 @@ public class ExampleProcessor extends AbstractProcessor {
         HashMap.class.getTypeName(),
         Mapper.class.getTypeName()
     ));
-    for (ExampleFieldModel fieldModel : model.getFields()) {
+    for (FieldModel fieldModel : model.getFields()) {
       imports.addAll(fieldModel.getTypeQualifiedNames());
     }
     removeJavaLangImports(imports);
@@ -106,8 +105,8 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitPackage(packageName)
         .emitImports(imports)
         .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">");
-    for (ExampleFieldModel fieldModel : model.getFields()) {
-      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+    for (FieldModel fieldModel : model.getFields()) {
+      final EntityModel dependencyModel = fieldModel.getDependencyModel();
       if (dependencyModel != null) {
         final String mapperClass = dependencyModel.getMapperClassName();
         final String mapperVariable = dependencyModel.getMapperVariableName();
@@ -119,8 +118,8 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitAnnotation(Override.class)
         .beginMethod(className, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
         .emitStatement("final %s object = new %s()", className, className);
-    for (ExampleFieldModel fieldModel : model.getFields()) {
-      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+    for (FieldModel fieldModel : model.getFields()) {
+      final EntityModel dependencyModel = fieldModel.getDependencyModel();
       if (dependencyModel == null) {
         writer
             .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
@@ -141,8 +140,8 @@ public class ExampleProcessor extends AbstractProcessor {
       writer
           .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
     }
-    for (ExampleFieldModel fieldModel : model.getFields()) {
-      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+    for (FieldModel fieldModel : model.getFields()) {
+      final EntityModel dependencyModel = fieldModel.getDependencyModel();
       if (dependencyModel == null) {
         writer
             .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
@@ -158,10 +157,10 @@ public class ExampleProcessor extends AbstractProcessor {
         .close();
   }
 
-  private void emitInternalParser(List<ExampleModel> models) throws IOException {
-    Collections.sort(models, new Comparator<ExampleModel>() {
+  private void emitCouchbaseLiteOrmInternal(List<EntityModel> models) throws IOException {
+    Collections.sort(models, new Comparator<EntityModel>() {
       @Override
-      public int compare(ExampleModel o1, ExampleModel o2) {
+      public int compare(EntityModel o1, EntityModel o2) {
         int compare;
         compare = o1.getClassName().compareTo(o2.getClassName());
         if (compare == 0) {
@@ -187,16 +186,16 @@ public class ExampleProcessor extends AbstractProcessor {
         .emitImports(imports)
         .beginType(className, "class", EMPTY_SET, "CouchbaseLiteOrm")
         .beginConstructor(EMPTY_SET);
-    for (ExampleModel model : models) {
+    for (EntityModel model : models) {
       final String mapperClass = model.getMapperClassName();
       final String mapperVariable = model.getMapperVariableName();
       writer
           .emitStatement("final %s %s = new %s()", mapperClass, mapperVariable, mapperClass);
     }
-    for (ExampleModel model : models) {
+    for (EntityModel model : models) {
       final String mapperVariable = model.getMapperVariableName();
-      for (ExampleFieldModel fieldModel : model.getFields()) {
-        final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+      for (FieldModel fieldModel : model.getFields()) {
+        final EntityModel dependencyModel = fieldModel.getDependencyModel();
         if (dependencyModel != null) {
           final String dependencyMapperVariable = dependencyModel.getMapperVariableName();
           writer
@@ -204,7 +203,7 @@ public class ExampleProcessor extends AbstractProcessor {
         }
       }
     }
-    for (ExampleModel model : models) {
+    for (EntityModel model : models) {
       final String mapperVariable = model.getMapperVariableName();
       if (model.hasAnnotationValue()) {
         writer
@@ -217,7 +216,7 @@ public class ExampleProcessor extends AbstractProcessor {
         .close();
   }
 
-  private static Element[] getArrayElements(List<ExampleModel> models) {
+  private static Element[] getArrayElements(List<EntityModel> models) {
     final int size = models.size();
     final Element[] elements = new Element[size];
     for (int i = 0; i < size; i++) {
@@ -226,10 +225,10 @@ public class ExampleProcessor extends AbstractProcessor {
     return elements;
   }
 
-  private static List<String> getArrayClasses(List<ExampleModel> models) {
+  private static List<String> getArrayClasses(List<EntityModel> models) {
     final int size = models.size();
     final List<String> classes = new ArrayList<>(size);
-    for (ExampleModel model : models) {
+    for (EntityModel model : models) {
       if (model.hasAnnotationValue()) {
         classes.add(model.getClassQualifiedName());
       }

@@ -1,7 +1,7 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
-import com.petterfactory.couchbaseliteorm.Example;
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Entity;
+import com.petterfactory.couchbaseliteorm.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,31 +15,31 @@ import javax.lang.model.element.VariableElement;
 /**
  * Created by brais on 7/1/15.
  */
-public class ExampleModel {
+public class EntityModel {
   private final TypeElement element;
-  private final List<ExampleFieldModel> fields;
+  private final List<FieldModel> fields;
 
-  public ExampleModel(TypeElement element) {
+  public EntityModel(TypeElement element) {
     this.element = element;
     this.fields = new ArrayList<>();
   }
 
-  public void fillFieldsList(List<ExampleModel> models) {
+  public void fillFieldsList(List<EntityModel> models) {
     fields.clear();
     List<? extends Element> enclosedElements = element.getEnclosedElements();
     for (Element element : enclosedElements) {
       if (element.getKind() == ElementKind.FIELD) {
-        final ExampleField annotation = element.getAnnotation(ExampleField.class);
+        final Field annotation = element.getAnnotation(Field.class);
         if (annotation != null) {
           final VariableElement variableElement = (VariableElement) element;
-          fields.add(new ExampleFieldModel(variableElement, findModel(models, variableElement.asType().toString())));
+          fields.add(new FieldModel(variableElement, findModel(models, variableElement.asType().toString())));
         }
       }
     }
   }
 
-  private static ExampleModel findModel(List<ExampleModel> models, String fullQualifiedName) {
-    for (ExampleModel model : models) {
+  private static EntityModel findModel(List<EntityModel> models, String fullQualifiedName) {
+    for (EntityModel model : models) {
       if (model.getClassQualifiedName().equals(fullQualifiedName)) {
         return model;
       }
@@ -79,14 +79,14 @@ public class ExampleModel {
   }
 
   public String getAnnotationValue() {
-    return element.getAnnotation(Example.class).value();
+    return element.getAnnotation(Entity.class).value();
   }
 
   public boolean hasAnnotationValue() {
-    return !element.getAnnotation(Example.class).value().equals(Example.DEFAULT_VALE);
+    return !element.getAnnotation(Entity.class).value().equals(Entity.DEFAULT_VALE);
   }
 
-  public List<ExampleFieldModel> getFields() {
+  public List<FieldModel> getFields() {
     return fields;
   }
 }

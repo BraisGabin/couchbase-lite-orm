@@ -1,14 +1,14 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Example;
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Entity;
+import com.petterfactory.couchbaseliteorm.Field;
 
 import java.util.List;
 
-@Example("person")
+@Entity("person")
 public class Person {
 
-  @ExampleField("emails")
+  @Field("emails")
   List<String> emails;
 
   public Person() {

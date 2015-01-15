@@ -1,18 +1,18 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Example;
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Entity;
+import com.petterfactory.couchbaseliteorm.Field;
 
 /**
  * Created by brais on 13/1/15.
  */
-@Example
+@Entity
 public class Address {
 
-  @ExampleField("street")
+  @Field("street")
   String street;
 
-  @ExampleField("number")
+  @Field("number")
   String number;
 
   @Override

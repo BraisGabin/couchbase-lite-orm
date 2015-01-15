@@ -1,7 +1,7 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
-import com.petterfactory.couchbaseliteorm.Example;
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Entity;
+import com.petterfactory.couchbaseliteorm.Field;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -28,15 +28,15 @@ import static org.mockito.Mockito.when;
 /**
  * Created by brais on 7/1/15.
  */
-public class ExampleModelTest {
+public class EntityModelTest {
 
   @Test
   public void checkGetElement() {
     TypeElement element = mock(TypeElement.class);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that(element).isEqualTo(exampleModel.getElement());
+    ASSERT.that(element).isEqualTo(entity.getElement());
   }
 
   @Test
@@ -46,9 +46,9 @@ public class ExampleModelTest {
     TypeElement element = mock(TypeElement.class);
     when(element.getSimpleName()).thenReturn(simpleName);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("Test").isEqualTo(exampleModel.getClassName());
+    ASSERT.that("Test").isEqualTo(entity.getClassName());
   }
 
   @Test
@@ -58,9 +58,9 @@ public class ExampleModelTest {
     TypeElement element = mock(TypeElement.class);
     when(element.getQualifiedName()).thenReturn(qualifiedName);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("com.example.Test").isEqualTo(exampleModel.getClassQualifiedName());
+    ASSERT.that("com.example.Test").isEqualTo(entity.getClassQualifiedName());
   }
 
   @Test
@@ -70,9 +70,9 @@ public class ExampleModelTest {
     TypeElement element = mock(TypeElement.class);
     when(element.getSimpleName()).thenReturn(simpleName);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("Test$$Mapper").isEqualTo(exampleModel.getMapperClassName());
+    ASSERT.that("Test$$Mapper").isEqualTo(entity.getMapperClassName());
   }
 
   @Test
@@ -82,9 +82,9 @@ public class ExampleModelTest {
     TypeElement element = mock(TypeElement.class);
     when(element.getSimpleName()).thenReturn(simpleName);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("testMapper").isEqualTo(exampleModel.getMapperVariableName());
+    ASSERT.that("testMapper").isEqualTo(entity.getMapperVariableName());
   }
 
   @Test
@@ -97,45 +97,45 @@ public class ExampleModelTest {
     when(element.getSimpleName()).thenReturn(simpleName);
     when(element.getQualifiedName()).thenReturn(qualifiedName);
 
-    ExampleModel exampleModel = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("com.example").isEqualTo(exampleModel.getPackageName());
+    ASSERT.that("com.example").isEqualTo(entity.getPackageName());
   }
 
   @Test
   public void checkGetMapProperty() {
-    Example annotation = mock(Example.class);
+    Entity annotation = mock(Entity.class);
     when(annotation.value()).thenReturn("foo");
     TypeElement element = mock(TypeElement.class);
-    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+    when(element.getAnnotation(Matchers.<Class<Entity>>anyObject())).thenReturn(annotation);
 
-    ExampleModel model = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("foo").isEqualTo(model.getAnnotationValue());
+    ASSERT.that("foo").isEqualTo(entity.getAnnotationValue());
   }
 
   @Test
   public void checkHasAnnotationValue_true() {
-    Example annotation = mock(Example.class);
+    Entity annotation = mock(Entity.class);
     when(annotation.value()).thenReturn("foo");
     TypeElement element = mock(TypeElement.class);
-    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+    when(element.getAnnotation(Matchers.<Class<Entity>>anyObject())).thenReturn(annotation);
 
-    ExampleModel model = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that(model.hasAnnotationValue()).isTrue();
+    ASSERT.that(entity.hasAnnotationValue()).isTrue();
   }
 
   @Test
   public void checkHasAnnotationValue_false() {
-    Example annotation = mock(Example.class);
-    when(annotation.value()).thenReturn(Example.DEFAULT_VALE);
+    Entity annotation = mock(Entity.class);
+    when(annotation.value()).thenReturn(Entity.DEFAULT_VALE);
     TypeElement element = mock(TypeElement.class);
-    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+    when(element.getAnnotation(Matchers.<Class<Entity>>anyObject())).thenReturn(annotation);
 
-    ExampleModel model = new ExampleModel(element);
+    EntityModel entity = new EntityModel(element);
 
-    ASSERT.that(model.hasAnnotationValue()).isFalse();
+    ASSERT.that(entity.hasAnnotationValue()).isFalse();
   }
 
   @Test
@@ -143,12 +143,12 @@ public class ExampleModelTest {
     final Element e1 = mock(TypeElement.class);
     when(e1.getKind()).thenReturn(ElementKind.CLASS);
 
-    ExampleField annotation = mock(ExampleField.class);
+    Field annotation = mock(Field.class);
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.toString()).thenReturn("com.example.Foo");
     final Element e2 = mock(VariableElement.class);
     when(e2.getKind()).thenReturn(ElementKind.FIELD);
-    when(e2.getAnnotation(Matchers.<Class<ExampleField>>anyObject())).thenReturn(annotation);
+    when(e2.getAnnotation(Matchers.<Class<Field>>anyObject())).thenReturn(annotation);
     when(e2.asType()).thenReturn(typeMirror);
 
     final Element e3 = mock(ExecutableElement.class);
@@ -161,10 +161,10 @@ public class ExampleModelTest {
       }
     });
 
-    ExampleModel exampleModel = new ExampleModel(element);
-    exampleModel.fillFieldsList(new ArrayList<ExampleModel>());
+    EntityModel entity = new EntityModel(element);
+    entity.fillFieldsList(new ArrayList<EntityModel>());
 
-    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2, null))).isEqualTo(exampleModel.getFields());
+    ASSERT.that(Arrays.asList(new FieldModel((VariableElement) e2, null))).isEqualTo(entity.getFields());
   }
 
   @Test
@@ -172,7 +172,7 @@ public class ExampleModelTest {
     final Element e1 = mock(VariableElement.class);
     when(e1.getKind()).thenReturn(ElementKind.FIELD);
 
-    ExampleField annotation = mock(ExampleField.class);
+    Field annotation = mock(Field.class);
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.toString()).thenReturn("com.example.Foo");
     final Element e2 = mock(VariableElement.class);
@@ -187,9 +187,9 @@ public class ExampleModelTest {
       }
     });
 
-    ExampleModel exampleModel = new ExampleModel(element);
-    exampleModel.fillFieldsList(new ArrayList<ExampleModel>());
+    EntityModel entity = new EntityModel(element);
+    entity.fillFieldsList(new ArrayList<EntityModel>());
 
-    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2, null))).isEqualTo(exampleModel.getFields());
+    ASSERT.that(Arrays.asList(new FieldModel((VariableElement) e2, null))).isEqualTo(entity.getFields());
   }
 }

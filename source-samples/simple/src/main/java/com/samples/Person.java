@@ -1,15 +1,15 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Example;
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Entity;
+import com.petterfactory.couchbaseliteorm.Field;
 
-@Example("person")
+@Entity("person")
 public class Person {
 
-  @ExampleField("name")
+  @Field("name")
   String name;
 
-  @ExampleField("age")
+  @Field("age")
   Integer age;
 
   public Person() {

@@ -1,6 +1,6 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Field;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,13 +13,13 @@ import javax.lang.model.element.VariableElement;
 /**
  * Created by brais on 7/1/15.
  */
-public class ExampleFieldModel {
+public class FieldModel {
   private final static Pattern pattern = Pattern.compile("^(.*)<(.*)>$");
 
   private final VariableElement element;
-  private final ExampleModel dependency;
+  private final EntityModel dependency;
 
-  public ExampleFieldModel(VariableElement element, ExampleModel dependency) {
+  public FieldModel(VariableElement element, EntityModel dependency) {
     this.element = element;
     this.dependency = dependency;
   }
@@ -93,7 +93,7 @@ public class ExampleFieldModel {
   }
 
   public String getMapProperty() {
-    return element.getAnnotation(ExampleField.class).value();
+    return element.getAnnotation(Field.class).value();
   }
 
   @Override
@@ -101,7 +101,7 @@ public class ExampleFieldModel {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ExampleFieldModel that = (ExampleFieldModel) o;
+    FieldModel that = (FieldModel) o;
 
     if (!element.equals(that.element)) return false;
 
@@ -113,7 +113,7 @@ public class ExampleFieldModel {
     return element.hashCode();
   }
 
-  public ExampleModel getDependencyModel() {
+  public EntityModel getDependencyModel() {
     return dependency;
   }
 }

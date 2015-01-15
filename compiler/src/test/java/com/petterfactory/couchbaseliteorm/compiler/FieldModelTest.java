@@ -1,6 +1,6 @@
 package com.petterfactory.couchbaseliteorm.compiler;
 
-import com.petterfactory.couchbaseliteorm.ExampleField;
+import com.petterfactory.couchbaseliteorm.Field;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -18,13 +18,13 @@ import static org.mockito.Mockito.when;
 /**
  * Created by brais on 8/1/15.
  */
-public class ExampleFieldModelTest {
+public class FieldModelTest {
 
   @Test
   public void checkGetElement() {
     VariableElement element = mock(VariableElement.class);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that(element).isEqualTo(model.getElement());
   }
@@ -36,7 +36,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.getSimpleName()).thenReturn(simpleName);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("test").isEqualTo(model.getFieldName());
   }
@@ -48,7 +48,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("Foo").isEqualTo(model.getTypeSimpleName());
   }
@@ -60,7 +60,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("Foo<Bar>").isEqualTo(model.getTypeSimpleName());
   }
@@ -72,7 +72,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("Foo<Bar, Baz>").isEqualTo(model.getTypeSimpleName());
   }
@@ -84,7 +84,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("com.example.Foo").isEqualTo(model.getTypeQualifiedName());
   }
@@ -96,7 +96,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo")).isEqualTo(model.getTypeQualifiedNames());
   }
@@ -108,7 +108,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar")).isEqualTo(model.getTypeQualifiedNames());
   }
@@ -120,19 +120,19 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar", "com.example.Baz")).isEqualTo(model.getTypeQualifiedNames());
   }
 
   @Test
   public void checkGetMapProperty() {
-    ExampleField annotation = mock(ExampleField.class);
+    Field annotation = mock(Field.class);
     when(annotation.value()).thenReturn("foo");
     VariableElement element = mock(VariableElement.class);
-    when(element.getAnnotation(Matchers.<Class<ExampleField>>anyObject())).thenReturn(annotation);
+    when(element.getAnnotation(Matchers.<Class<Field>>anyObject())).thenReturn(annotation);
 
-    ExampleFieldModel model = new ExampleFieldModel(element, null);
+    FieldModel model = new FieldModel(element, null);
 
     ASSERT.that("foo").isEqualTo(model.getMapProperty());
   }
