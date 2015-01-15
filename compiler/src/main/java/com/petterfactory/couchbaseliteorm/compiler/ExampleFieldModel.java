@@ -17,9 +17,11 @@ public class ExampleFieldModel {
   private final static Pattern pattern = Pattern.compile("^(.*)<(.*)>$");
 
   private final VariableElement element;
+  private final ExampleModel dependency;
 
-  public ExampleFieldModel(VariableElement element) {
+  public ExampleFieldModel(VariableElement element, ExampleModel dependency) {
     this.element = element;
+    this.dependency = dependency;
   }
 
   public VariableElement getElement() {
@@ -109,5 +111,9 @@ public class ExampleFieldModel {
   @Override
   public int hashCode() {
     return element.hashCode();
+  }
+
+  public ExampleModel getDependencyModel() {
+    return dependency;
   }
 }

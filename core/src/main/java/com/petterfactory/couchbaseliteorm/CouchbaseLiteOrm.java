@@ -14,7 +14,7 @@ public abstract class CouchbaseLiteOrm {
   private final Map<String, Mapper<?>> stringToMapper;
   private final Map<Class<?>, Mapper<?>> classToMapper; // Is it possible force '? == ?'?
 
-  protected CouchbaseLiteOrm() {
+  CouchbaseLiteOrm() {
     this.stringToMapper = new HashMap<>();
     this.classToMapper = new HashMap<>();
   }
@@ -31,35 +31,40 @@ public abstract class CouchbaseLiteOrm {
     return instance;
   }
 
-  protected <T> void registerType(String typeName, Class<T> clazz, Mapper<T> type) {
+  <T> void registerType(String typeName, Class<T> clazz, Mapper<T> type) {
     stringToMapper.put(typeName, type);
     classToMapper.put(clazz, type);
   }
 
   // TODO Document
-  <T> T toObject(Document document) {
+  public <T> T toObject(Document document) {
     final Map<String, Object> properties = document.getProperties();
     final String sDocumentType = (String) properties.get("type");
     if (sDocumentType == null) {
       throw new IllegalArgumentException("The document " + document.getId() + " doesn't have set the \"type\" property.");
     }
     @SuppressWarnings("unchecked")
-    final Mapper<T> wrapper = (Mapper<T>) stringToMapper.get(sDocumentType);
-    if (wrapper == null) {
+    final Mapper<T> mapper = (Mapper<T>) stringToMapper.get(sDocumentType);
+    if (mapper == null) {
       throw new IllegalArgumentException("Unknown type " + sDocumentType + " at document " + document.getId() + ".");
     }
-    return wrapper.toObject(properties);
+    return mapper.toObject(properties);
   }
 
   // TODO Document
-  <T> Document toDocument(T object, Document document) throws CouchbaseLiteException {
-    @SuppressWarnings("unchecked")
-    final Mapper<T> wrapper = (Mapper<T>) classToMapper.get(object.getClass());
-    if (wrapper == null) {
-      throw new IllegalArgumentException("Unknown class " + object.getClass().getCanonicalName() + ". It's annotated?");
-    }
-    Map<String, Object> properties = wrapper.toProperties(object);
+  public <T> Document toDocument(T object, Document document) throws CouchbaseLiteException {
+    Map<String, Object> properties = toProperties(object);
     document.putProperties(properties);
     return document;
+  }
+
+  // TODO Document
+  public <T> Map<String, Object> toProperties(T object) {
+    @SuppressWarnings("unchecked")
+    final Mapper<T> mapper = (Mapper<T>) classToMapper.get(object.getClass());
+    if (mapper == null) {
+      throw new IllegalArgumentException("Unknown class " + object.getClass().getCanonicalName() + ". It's annotated?");
+    }
+    return mapper.toProperties(object);
   }
 }

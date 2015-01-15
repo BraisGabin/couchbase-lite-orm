@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import javax.tools.JavaFileObject;
 
 import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
+import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 import static com.petterfactory.couchbaseliteorm.compiler.TestProcessors.exampleProcessors;
 
 /**
@@ -46,11 +48,27 @@ public class ExampleProcessorTest {
     }
   }
 
+//  @Test
+//  public void simpleCompile() throws IOException {
+//    final String sampleName = "simple";
+//    final JavaFileObject inputFile = getJavaFileObject(compilerPath, sampleName, "com.samples.Person");
+//    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person$$Mapper");
+//    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, sampleName, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+//
+//    ASSERT.about(javaSource())
+//        .that(inputFile)
+//        .processedWith(exampleProcessors())
+//        .compilesWithoutError()
+//        .and()
+//        .generatesSources(expectedFile1, expectedFile2);
+//  }
+
   @Test
-  public void simpleCompile() throws IOException {
-    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "simple", "com.samples.Person");
-    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "simple", "com.samples.Person$$Mapper");
-    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "simple", "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+  public void listsCompile() throws IOException {
+    final String sampleName = "lists";
+    final JavaFileObject inputFile = getJavaFileObject(compilerPath, sampleName, "com.samples.Person");
+    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, sampleName, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
 
     ASSERT.about(javaSource())
         .that(inputFile)
@@ -61,16 +79,19 @@ public class ExampleProcessorTest {
   }
 
   @Test
-  public void listsCompile() throws IOException {
-    final JavaFileObject inputFile = getJavaFileObject(compilerPath, "lists", "com.samples.Person");
-    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, "lists", "com.samples.Person$$Mapper");
-    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, "lists", "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+  public void objectsCompile() throws IOException {
+    final String sampleName = "objects";
+    final JavaFileObject inputFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person");
+    final JavaFileObject inputFile2 = getJavaFileObject(compilerPath, sampleName, "com.samples.Address");
+    final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person$$Mapper");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, sampleName, "com.samples.Address$$Mapper");
+    final JavaFileObject expectedFile3 = getJavaFileObject(compilerPath, sampleName, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
 
-    ASSERT.about(javaSource())
-        .that(inputFile)
+    ASSERT.about(javaSources())
+        .that(Arrays.asList(inputFile1, inputFile2))
         .processedWith(exampleProcessors())
         .compilesWithoutError()
         .and()
-        .generatesSources(expectedFile1, expectedFile2);
+        .generatesSources(expectedFile1, expectedFile2, expectedFile3);
   }
 }

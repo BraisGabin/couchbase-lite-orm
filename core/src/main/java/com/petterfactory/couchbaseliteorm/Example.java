@@ -10,5 +10,7 @@ import static java.lang.annotation.ElementType.TYPE;
 @Target(TYPE)
 public @interface Example {
 
-  String value();
+  public static final String DEFAULT_VALE = "☕️💩";
+
+  String value() default DEFAULT_VALE;
 }

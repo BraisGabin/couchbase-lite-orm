@@ -9,6 +9,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 import static com.google.common.truth.Truth.ASSERT;
 import static org.mockito.Mockito.mock;
@@ -74,6 +76,18 @@ public class ExampleModelTest {
   }
 
   @Test
+  public void checkGetMapperVariableName() {
+    Name simpleName = mock(Name.class);
+    when(simpleName.toString()).thenReturn("Test");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getSimpleName()).thenReturn(simpleName);
+
+    ExampleModel exampleModel = new ExampleModel(element);
+
+    ASSERT.that("testMapper").isEqualTo(exampleModel.getMapperVariableName());
+  }
+
+  @Test
   public void checkGetPackageName() {
     Name simpleName = mock(Name.class);
     when(simpleName.toString()).thenReturn("Test");
@@ -101,15 +115,45 @@ public class ExampleModelTest {
   }
 
   @Test
+  public void checkHasAnnotationValue_true() {
+    Example annotation = mock(Example.class);
+    when(annotation.value()).thenReturn("foo");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+
+    ExampleModel model = new ExampleModel(element);
+
+    ASSERT.that(model.hasAnnotationValue()).isTrue();
+  }
+
+  @Test
+  public void checkHasAnnotationValue_false() {
+    Example annotation = mock(Example.class);
+    when(annotation.value()).thenReturn(Example.DEFAULT_VALE);
+    TypeElement element = mock(TypeElement.class);
+    when(element.getAnnotation(Matchers.<Class<Example>>anyObject())).thenReturn(annotation);
+
+    ExampleModel model = new ExampleModel(element);
+
+    ASSERT.that(model.hasAnnotationValue()).isFalse();
+  }
+
+  @Test
   public void checkGetFields_onlyReturnFieldTypes() {
     final Element e1 = mock(TypeElement.class);
     when(e1.getKind()).thenReturn(ElementKind.CLASS);
+
     ExampleField annotation = mock(ExampleField.class);
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo");
     final Element e2 = mock(VariableElement.class);
     when(e2.getKind()).thenReturn(ElementKind.FIELD);
     when(e2.getAnnotation(Matchers.<Class<ExampleField>>anyObject())).thenReturn(annotation);
+    when(e2.asType()).thenReturn(typeMirror);
+
     final Element e3 = mock(ExecutableElement.class);
     when(e3.getKind()).thenReturn(ElementKind.METHOD);
+
     TypeElement element = mock(TypeElement.class);
     when(element.getEnclosedElements()).thenAnswer(new Answer<List<Element>>() {
       public List<Element> answer(InvocationOnMock invocation) throws Throwable {
@@ -118,18 +162,24 @@ public class ExampleModelTest {
     });
 
     ExampleModel exampleModel = new ExampleModel(element);
+    exampleModel.fillFieldsList(new ArrayList<ExampleModel>());
 
-    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2))).isEqualTo(exampleModel.getFields());
+    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2, null))).isEqualTo(exampleModel.getFields());
   }
 
   @Test
   public void checkGetFields_onlyReturnAnnotatedTypes() {
     final Element e1 = mock(VariableElement.class);
     when(e1.getKind()).thenReturn(ElementKind.FIELD);
+
     ExampleField annotation = mock(ExampleField.class);
+    TypeMirror typeMirror = mock(TypeMirror.class);
+    when(typeMirror.toString()).thenReturn("com.example.Foo");
     final Element e2 = mock(VariableElement.class);
     when(e2.getKind()).thenReturn(ElementKind.FIELD);
     when(e2.getAnnotation(Matchers.<Class<Annotation>>anyObject())).thenReturn(annotation);
+    when(e2.asType()).thenReturn(typeMirror);
+
     TypeElement element = mock(TypeElement.class);
     when(element.getEnclosedElements()).thenAnswer(new Answer<List<Element>>() {
       public List<Element> answer(InvocationOnMock invocation) throws Throwable {
@@ -138,7 +188,8 @@ public class ExampleModelTest {
     });
 
     ExampleModel exampleModel = new ExampleModel(element);
+    exampleModel.fillFieldsList(new ArrayList<ExampleModel>());
 
-    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2))).isEqualTo(exampleModel.getFields());
+    ASSERT.that(Arrays.asList(new ExampleFieldModel((VariableElement) e2, null))).isEqualTo(exampleModel.getFields());
   }
 }

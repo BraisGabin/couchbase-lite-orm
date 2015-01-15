@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -36,6 +39,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 public class ExampleProcessor extends AbstractProcessor {
 
   private final static Set<Modifier> EMPTY_SET = Collections.emptySet();
+  private final List<ExampleModel> models = new ArrayList<>();
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -49,12 +53,15 @@ public class ExampleProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    List<ExampleModel> models = parseExampleAnnotations(roundEnv);
+    models.addAll(parseExampleAnnotations(roundEnv));
     try {
       for (ExampleModel model : models) {
-        emitExampleCode(model);
+        model.fillFieldsList(models);
       }
-      if (!models.isEmpty()) {
+      if (roundEnv.processingOver()) {
+        for (ExampleModel model : models) {
+          emitExampleCode(model);
+        }
         emitInternalParser(models);
       }
     } catch (IOException e) {
@@ -93,33 +100,75 @@ public class ExampleProcessor extends AbstractProcessor {
       imports.addAll(fieldModel.getTypeQualifiedNames());
     }
     removeJavaLangImports(imports);
+    removeImportsFromPackage(imports, packageName);
 
     writer
         .emitPackage(packageName)
         .emitImports(imports)
-        .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">")
+        .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">");
+    for (ExampleFieldModel fieldModel : model.getFields()) {
+      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+      if (dependencyModel != null) {
+        final String mapperClass = dependencyModel.getMapperClassName();
+        final String mapperVariable = dependencyModel.getMapperVariableName();
+        writer
+            .emitField(mapperClass, mapperVariable, EnumSet.of(PUBLIC));
+      }
+    }
+    writer
         .emitAnnotation(Override.class)
         .beginMethod(className, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
         .emitStatement("final %s object = new %s()", className, className);
     for (ExampleFieldModel fieldModel : model.getFields()) {
-      writer.emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
+      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+      if (dependencyModel == null) {
+        writer
+            .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
+      } else {
+        writer
+            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getMapProperty());
+      }
     }
-    writer.emitStatement("return object")
+    writer
+        .emitStatement("return object")
         .endMethod()
         .emitAnnotation(Override.class)
         .beginMethod("Map<String, Object>", "toProperties", EnumSet.of(PUBLIC), className, "object")
-        .emitStatement("final Map<String, Object> properties = new HashMap<>()")
-        .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
-    for (ExampleFieldModel fieldModel : model.getFields()) {
-      writer.emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
+        .emitStatement("final Map<String, Object> properties = new HashMap<>()");
+    if (model.hasAnnotationValue()) {
+      writer
+          .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
     }
-    writer.emitStatement("return properties")
+    for (ExampleFieldModel fieldModel : model.getFields()) {
+      final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+      if (dependencyModel == null) {
+        writer
+            .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
+      } else {
+        writer
+            .emitStatement("properties.put(\"%s\", %s.toProperties(object.%s))", fieldModel.getMapProperty(), dependencyModel.getMapperVariableName(), fieldModel.getFieldName());
+      }
+    }
+    writer
+        .emitStatement("return properties")
         .endMethod()
         .endType()
         .close();
   }
 
   private void emitInternalParser(List<ExampleModel> models) throws IOException {
+    Collections.sort(models, new Comparator<ExampleModel>() {
+      @Override
+      public int compare(ExampleModel o1, ExampleModel o2) {
+        int compare;
+        compare = o1.getClassName().compareTo(o2.getClassName());
+        if (compare == 0) {
+          compare = o1.getClassQualifiedName().compareTo(o2.getClassQualifiedName());
+        }
+        return compare;
+      }
+    });
+
     final Filer filer = this.processingEnv.getFiler();
 
     final String classPackage = "com.petterfactory.couchbaseliteorm";
@@ -137,8 +186,28 @@ public class ExampleProcessor extends AbstractProcessor {
         .beginType(className, "class", EMPTY_SET, "CouchbaseLiteOrm")
         .beginConstructor(EMPTY_SET);
     for (ExampleModel model : models) {
+      final String mapperClass = model.getMapperClassName();
+      final String mapperVariable = model.getMapperVariableName();
       writer
-          .emitStatement("registerType(\"%s\", %s.class, new %s$$Mapper())", model.getAnnotationValue(), model.getClassName(), model.getClassName());
+          .emitStatement("final %s %s = new %s()", mapperClass, mapperVariable, mapperClass);
+    }
+    for (ExampleModel model : models) {
+      final String mapperVariable = model.getMapperVariableName();
+      for (ExampleFieldModel fieldModel : model.getFields()) {
+        final ExampleModel dependencyModel = fieldModel.getDependencyModel();
+        if (dependencyModel != null) {
+          final String dependencyMapperVariable = dependencyModel.getMapperVariableName();
+          writer
+              .emitStatement("%s.%s = %s", mapperVariable, dependencyMapperVariable, dependencyMapperVariable);
+        }
+      }
+    }
+    for (ExampleModel model : models) {
+      final String mapperVariable = model.getMapperVariableName();
+      if (model.hasAnnotationValue()) {
+        writer
+            .emitStatement("registerType(\"%s\", %s.class, %s)", model.getAnnotationValue(), model.getClassName(), mapperVariable);
+      }
     }
     writer
         .endConstructor()
@@ -159,9 +228,10 @@ public class ExampleProcessor extends AbstractProcessor {
     final int size = models.size();
     final List<String> classes = new ArrayList<>(size);
     for (ExampleModel model : models) {
-      final String classQualifiedName = model.getClassQualifiedName();
-      classes.add(classQualifiedName);
-      classes.add(classQualifiedName + "$$Mapper");
+      if (model.hasAnnotationValue()) {
+        classes.add(model.getClassQualifiedName());
+      }
+      classes.add(model.getMapperClassQualifiedName());
     }
     return classes;
   }
@@ -175,4 +245,14 @@ public class ExampleProcessor extends AbstractProcessor {
     }
   }
 
+  private static void removeImportsFromPackage(Set<String> imports, String packageName) {
+    final Pattern pattern = Pattern.compile("^" + Pattern.quote(packageName) + "\\.[^\\.]*$");
+    final Iterator<String> iterator = imports.iterator();
+    while (iterator.hasNext()) {
+      final Matcher matcher = pattern.matcher(iterator.next());
+      if (matcher.matches()) {
+        iterator.remove();
+      }
+    }
+  }
 }

@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/compiler/compiler.iml" filepath="$PROJECT_DIR$/compiler/compiler.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/source-samples/lists/lists.iml" filepath="$PROJECT_DIR$/source-samples/lists/lists.iml" />
+      <module fileurl="file://$PROJECT_DIR$/source-samples/objects/objects.iml" filepath="$PROJECT_DIR$/source-samples/objects/objects.iml" />
       <module fileurl="file://$PROJECT_DIR$/sample/sample.iml" filepath="$PROJECT_DIR$/sample/sample.iml" />
       <module fileurl="file://$PROJECT_DIR$/source-samples/simple/simple.iml" filepath="$PROJECT_DIR$/source-samples/simple/simple.iml" />
     </modules>

@@ -8,6 +8,7 @@ import com.samples.Person$$Mapper;
  */
 class CouchbaseLiteOrmInternal extends CouchbaseLiteOrm {
   CouchbaseLiteOrmInternal() {
-    registerType("person", Person.class, new Person$$Mapper());
+    final Person$$Mapper personMapper = new Person$$Mapper();
+    registerType("person", Person.class, personMapper);
   }
 }

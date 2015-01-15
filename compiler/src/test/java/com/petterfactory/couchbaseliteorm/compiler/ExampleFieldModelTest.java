@@ -24,7 +24,7 @@ public class ExampleFieldModelTest {
   public void checkGetElement() {
     VariableElement element = mock(VariableElement.class);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that(element).isEqualTo(model.getElement());
   }
@@ -36,7 +36,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.getSimpleName()).thenReturn(simpleName);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("test").isEqualTo(model.getFieldName());
   }
@@ -48,7 +48,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("Foo").isEqualTo(model.getTypeSimpleName());
   }
@@ -60,7 +60,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("Foo<Bar>").isEqualTo(model.getTypeSimpleName());
   }
@@ -72,7 +72,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("Foo<Bar, Baz>").isEqualTo(model.getTypeSimpleName());
   }
@@ -84,7 +84,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("com.example.Foo").isEqualTo(model.getTypeQualifiedName());
   }
@@ -96,7 +96,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo")).isEqualTo(model.getTypeQualifiedNames());
   }
@@ -108,7 +108,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar")).isEqualTo(model.getTypeQualifiedNames());
   }
@@ -120,7 +120,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that(Arrays.asList("com.example.Foo", "com.example.Bar", "com.example.Baz")).isEqualTo(model.getTypeQualifiedNames());
   }
@@ -132,7 +132,7 @@ public class ExampleFieldModelTest {
     VariableElement element = mock(VariableElement.class);
     when(element.getAnnotation(Matchers.<Class<ExampleField>>anyObject())).thenReturn(annotation);
 
-    ExampleFieldModel model = new ExampleFieldModel(element);
+    ExampleFieldModel model = new ExampleFieldModel(element, null);
 
     ASSERT.that("foo").isEqualTo(model.getMapProperty());
   }
