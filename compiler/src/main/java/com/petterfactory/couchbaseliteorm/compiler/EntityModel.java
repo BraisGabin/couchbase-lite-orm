@@ -15,12 +15,14 @@ import javax.lang.model.element.VariableElement;
 /**
  * Created by brais on 7/1/15.
  */
-public class EntityModel {
+public class EntityModel implements EntityData {
   private final TypeElement element;
+  private final MapperModel mapperModel;
   private final List<FieldModel> fields;
 
   public EntityModel(TypeElement element) {
     this.element = element;
+    this.mapperModel = new MapperModel(element);
     this.fields = new ArrayList<>();
   }
 
@@ -40,7 +42,7 @@ public class EntityModel {
 
   private static EntityModel findModel(List<EntityModel> models, String fullQualifiedName) {
     for (EntityModel model : models) {
-      if (model.getClassQualifiedName().equals(fullQualifiedName)) {
+      if (model.getFullQualifiedName().equals(fullQualifiedName)) {
         return model;
       }
     }
@@ -51,39 +53,39 @@ public class EntityModel {
     return element;
   }
 
-  public String getClassName() {
+  @Override
+  public String getName() {
     return element.getSimpleName().toString();
   }
 
-  public String getClassQualifiedName() {
+  @Override
+  public String getFullQualifiedName() {
     return element.getQualifiedName().toString();
   }
 
-  public String getMapperClassName() {
-    return element.getSimpleName().toString() + "$$Mapper";
-  }
-
-  public String getMapperClassQualifiedName() {
-    return element.getQualifiedName().toString() + "$$Mapper";
-  }
-
-  public String getMapperVariableName() {
-    String mapperVariable = element.getSimpleName().toString();
-    return mapperVariable.substring(0, 1).toLowerCase(Locale.US) + mapperVariable.substring(1) + "Mapper";
-  }
-
-  public String getPackageName() {
+  @Override
+  public String getPackage() {
     final String simpleName = element.getSimpleName().toString();
     final String qualifiedName = element.getQualifiedName().toString();
     return qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
   }
 
-  public String getAnnotationValue() {
-    return element.getAnnotation(Entity.class).value();
+  @Override
+  public String getVariable() {
+    String mapperVariable = element.getSimpleName().toString();
+    return mapperVariable.substring(0, 1).toLowerCase(Locale.US) + mapperVariable.substring(1);
+  }
+
+  public MapperModel getMapper() {
+    return mapperModel;
   }
 
   public boolean hasAnnotationValue() {
     return !element.getAnnotation(Entity.class).value().equals(Entity.DEFAULT_VALE);
+  }
+
+  public String getAnnotationValue() {
+    return element.getAnnotation(Entity.class).value();
   }
 
   public List<FieldModel> getFields() {

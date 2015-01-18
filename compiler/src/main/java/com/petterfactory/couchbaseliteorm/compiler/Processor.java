@@ -82,11 +82,12 @@ public class Processor extends AbstractProcessor {
   private void emitMapper(EntityModel model) throws IOException {
     final Filer filer = this.processingEnv.getFiler();
 
-    final String className = model.getClassName();
-    final String packageName = model.getPackageName();
-    final String mapperClassName = model.getMapperClassName();
+    final String entityName = model.getName();
+    final MapperModel mapper = model.getMapper();
+    final String packageName = mapper.getPackage();
+    final String mapperClassName = mapper.getName();
 
-    JavaFileObject sourceFile = filer.createSourceFile(packageName + "." + mapperClassName, model.getElement());
+    JavaFileObject sourceFile = filer.createSourceFile(mapper.getFullQualifiedName(), model.getElement());
 
     JavaWriter writer = new JavaWriter(sourceFile.openWriter());
 
@@ -96,7 +97,7 @@ public class Processor extends AbstractProcessor {
         Mapper.class.getCanonicalName()
     ));
     for (FieldModel fieldModel : model.getFields()) {
-      imports.addAll(fieldModel.getTypeQualifiedNames());
+      imports.addAll(fieldModel.getType().getFullQualifiedNames());
     }
     removeJavaLangImports(imports);
     removeImportsFromPackage(imports, packageName);
@@ -104,29 +105,27 @@ public class Processor extends AbstractProcessor {
     writer
         .emitPackage(packageName)
         .emitImports(imports)
-        .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + className + ">");
+        .beginType(mapperClassName, "class", EnumSet.of(PUBLIC), null, "Mapper<" + entityName + ">");
     for (FieldModel fieldModel : model.getFields()) {
-      final EntityModel dependencyModel = fieldModel.getDependencyModel();
-      if (dependencyModel != null) {
-        final String mapperClass = dependencyModel.getMapperClassName();
-        final String mapperVariable = dependencyModel.getMapperVariableName();
+      final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
+      if (mapperDependency != null) {
         writer
-            .emitField(mapperClass, mapperVariable, EnumSet.of(PUBLIC));
+            .emitField(mapperDependency.getName(), mapperDependency.getVariable(), EnumSet.of(PUBLIC));
       }
     }
     writer
         .emitAnnotation(Override.class)
-        .beginMethod(className, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
-        .emitStatement("final %s object = new %s()", className, className);
+        .beginMethod(entityName, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
+        .emitStatement("final %s object = new %s()", entityName, entityName);
     for (FieldModel fieldModel : model.getFields()) {
-      final EntityModel dependencyModel = fieldModel.getDependencyModel();
-      if (dependencyModel == null) {
+      final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
+      if (mapperDependency == null) {
         writer
-            .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getFieldName(), fieldModel.getTypeSimpleName(), fieldModel.getMapProperty());
+            .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey());
       } else {
         writer
-            .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getMapProperty())
-            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getMapProperty())
+            .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getPropertyKey())
+            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getName(), mapperDependency.getVariable(), fieldModel.getPropertyKey())
             .endControlFlow();
       }
     }
@@ -134,20 +133,20 @@ public class Processor extends AbstractProcessor {
         .emitStatement("return object")
         .endMethod()
         .emitAnnotation(Override.class)
-        .beginMethod("Map<String, Object>", "toProperties", EnumSet.of(PUBLIC), className, "object")
+        .beginMethod("Map<String, Object>", "toProperties", EnumSet.of(PUBLIC), entityName, "object")
         .emitStatement("final Map<String, Object> properties = new HashMap<>()");
     if (model.hasAnnotationValue()) {
       writer
           .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
     }
     for (FieldModel fieldModel : model.getFields()) {
-      final EntityModel dependencyModel = fieldModel.getDependencyModel();
-      if (dependencyModel == null) {
+      final MapperModel dependencyMapper = fieldModel.getDependencyMapperModel();
+      if (dependencyMapper == null) {
         writer
-            .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getMapProperty(), fieldModel.getFieldName());
+            .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getPropertyKey(), fieldModel.getName());
       } else {
         writer
-            .emitStatement("properties.put(\"%s\", object.%s == null ? null : %s.toProperties(object.%s))", fieldModel.getMapProperty(), fieldModel.getFieldName(), dependencyModel.getMapperVariableName(), fieldModel.getFieldName());
+            .emitStatement("properties.put(\"%s\", object.%s == null ? null : %s.toProperties(object.%s))", fieldModel.getPropertyKey(), fieldModel.getName(), dependencyMapper.getVariable(), fieldModel.getName());
       }
     }
     writer
@@ -162,9 +161,9 @@ public class Processor extends AbstractProcessor {
       @Override
       public int compare(EntityModel o1, EntityModel o2) {
         int compare;
-        compare = o1.getClassName().compareTo(o2.getClassName());
+        compare = o1.getName().compareTo(o2.getName());
         if (compare == 0) {
-          compare = o1.getClassQualifiedName().compareTo(o2.getClassQualifiedName());
+          compare = o1.getFullQualifiedName().compareTo(o2.getFullQualifiedName());
         }
         return compare;
       }
@@ -187,27 +186,29 @@ public class Processor extends AbstractProcessor {
         .beginType(className, "class", EMPTY_SET, "CouchbaseLiteOrm")
         .beginConstructor(EMPTY_SET);
     for (EntityModel model : models) {
-      final String mapperClass = model.getMapperClassName();
-      final String mapperVariable = model.getMapperVariableName();
+      final MapperModel mapperModel = model.getMapper();
+      final String mapperClass = mapperModel.getName();
+      final String mapperVariable = mapperModel.getVariable();
       writer
           .emitStatement("final %s %s = new %s()", mapperClass, mapperVariable, mapperClass);
     }
     for (EntityModel model : models) {
-      final String mapperVariable = model.getMapperVariableName();
+      final MapperModel mapperModel = model.getMapper();
+      final String mapperVariable = mapperModel.getVariable();
       for (FieldModel fieldModel : model.getFields()) {
-        final EntityModel dependencyModel = fieldModel.getDependencyModel();
-        if (dependencyModel != null) {
-          final String dependencyMapperVariable = dependencyModel.getMapperVariableName();
+        final MapperModel dependencyMapper = fieldModel.getDependencyMapperModel();
+        if (dependencyMapper != null) {
+          final String dependencyMapperVariable = dependencyMapper.getVariable();
           writer
               .emitStatement("%s.%s = %s", mapperVariable, dependencyMapperVariable, dependencyMapperVariable);
         }
       }
     }
     for (EntityModel model : models) {
-      final String mapperVariable = model.getMapperVariableName();
       if (model.hasAnnotationValue()) {
+        final String mapperVariable = model.getMapper().getVariable();
         writer
-            .emitStatement("registerType(\"%s\", %s.class, %s)", model.getAnnotationValue(), model.getClassName(), mapperVariable);
+            .emitStatement("registerType(\"%s\", %s.class, %s)", model.getAnnotationValue(), model.getName(), mapperVariable);
       }
     }
     writer
@@ -230,9 +231,9 @@ public class Processor extends AbstractProcessor {
     final List<String> classes = new ArrayList<>(size);
     for (EntityModel model : models) {
       if (model.hasAnnotationValue()) {
-        classes.add(model.getClassQualifiedName());
+        classes.add(model.getFullQualifiedName());
       }
-      classes.add(model.getMapperClassQualifiedName());
+      classes.add(model.getMapper().getFullQualifiedName());
     }
     return classes;
   }

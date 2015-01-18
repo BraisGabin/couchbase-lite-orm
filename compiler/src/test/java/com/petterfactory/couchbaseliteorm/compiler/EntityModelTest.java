@@ -40,7 +40,7 @@ public class EntityModelTest {
   }
 
   @Test
-  public void checkGetClassName() {
+  public void checkGetName() {
     Name simpleName = mock(Name.class);
     when(simpleName.toString()).thenReturn("Test");
     TypeElement element = mock(TypeElement.class);
@@ -48,11 +48,11 @@ public class EntityModelTest {
 
     EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("Test").isEqualTo(entity.getClassName());
+    ASSERT.that("Test").isEqualTo(entity.getName());
   }
 
   @Test
-  public void checkGetClassQualifiedName() {
+  public void checkGetFullQualifiedName() {
     Name qualifiedName = mock(Name.class);
     when(qualifiedName.toString()).thenReturn("com.example.Test");
     TypeElement element = mock(TypeElement.class);
@@ -60,46 +60,34 @@ public class EntityModelTest {
 
     EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("com.example.Test").isEqualTo(entity.getClassQualifiedName());
+    ASSERT.that("com.example.Test").isEqualTo(entity.getFullQualifiedName());
   }
 
   @Test
-  public void checkGetMapperClassName() {
-    Name simpleName = mock(Name.class);
-    when(simpleName.toString()).thenReturn("Test");
-    TypeElement element = mock(TypeElement.class);
-    when(element.getSimpleName()).thenReturn(simpleName);
-
-    EntityModel entity = new EntityModel(element);
-
-    ASSERT.that("Test$$Mapper").isEqualTo(entity.getMapperClassName());
-  }
-
-  @Test
-  public void checkGetMapperVariableName() {
-    Name simpleName = mock(Name.class);
-    when(simpleName.toString()).thenReturn("Test");
-    TypeElement element = mock(TypeElement.class);
-    when(element.getSimpleName()).thenReturn(simpleName);
-
-    EntityModel entity = new EntityModel(element);
-
-    ASSERT.that("testMapper").isEqualTo(entity.getMapperVariableName());
-  }
-
-  @Test
-  public void checkGetPackageName() {
-    Name simpleName = mock(Name.class);
-    when(simpleName.toString()).thenReturn("Test");
+  public void checkGetPackage() {
+    Name name = mock(Name.class);
+    when(name.toString()).thenReturn("Test");
     Name qualifiedName = mock(Name.class);
     when(qualifiedName.toString()).thenReturn("com.example.Test");
     TypeElement element = mock(TypeElement.class);
-    when(element.getSimpleName()).thenReturn(simpleName);
+    when(element.getSimpleName()).thenReturn(name);
     when(element.getQualifiedName()).thenReturn(qualifiedName);
 
     EntityModel entity = new EntityModel(element);
 
-    ASSERT.that("com.example").isEqualTo(entity.getPackageName());
+    ASSERT.that("com.example").isEqualTo(entity.getPackage());
+  }
+
+  @Test
+  public void checkGetVariable() {
+    Name qualifiedName = mock(Name.class);
+    when(qualifiedName.toString()).thenReturn("Test");
+    TypeElement element = mock(TypeElement.class);
+    when(element.getSimpleName()).thenReturn(qualifiedName);
+
+    EntityModel entity = new EntityModel(element);
+
+    ASSERT.that("test").isEqualTo(entity.getVariable());
   }
 
   @Test
