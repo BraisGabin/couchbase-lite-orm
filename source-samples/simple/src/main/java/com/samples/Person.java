@@ -10,7 +10,7 @@ public class Person {
   String name;
 
   @Field("age")
-  Integer age;
+  int age;
 
   public Person() {
   }

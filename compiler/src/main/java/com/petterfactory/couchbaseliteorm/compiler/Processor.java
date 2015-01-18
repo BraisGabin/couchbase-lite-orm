@@ -8,6 +8,7 @@ import com.squareup.javawriter.JavaWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -238,13 +239,14 @@ public class Processor extends AbstractProcessor {
     return classes;
   }
 
-  private static void removeJavaLangImports(Iterable<String> imports) {
+  private static void removeJavaLangImports(Collection<String> imports) {
     final Iterator<String> iterator = imports.iterator();
     while (iterator.hasNext()) {
       if (iterator.next().startsWith("java.lang.")) {
         iterator.remove();
       }
     }
+    imports.removeAll(Arrays.asList("boolean", "byte", "short", "int", "long", "float", "double"));
   }
 
   private static void removeImportsFromPackage(Set<String> imports, String packageName) {

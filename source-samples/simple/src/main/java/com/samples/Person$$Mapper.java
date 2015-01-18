@@ -5,13 +5,13 @@ import com.petterfactory.couchbaseliteorm.Mapper;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Person$$Mapper implements Mapper<Person>  {
+public class Person$$Mapper implements Mapper<Person> {
 
   @Override
   public Person toObject(Map<String, Object> properties) {
     final Person object = new Person();
     object.name = (String) properties.get("name");
-    object.age = (Integer) properties.get("age");
+    object.age = (int) properties.get("age");
     return object;
   }
 
