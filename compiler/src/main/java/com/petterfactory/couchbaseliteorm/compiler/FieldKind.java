@@ -10,14 +10,14 @@ public enum FieldKind {
   list;
 
   private final static List<String> simpleObjects = Arrays.asList(
-      Boolean.class.getTypeName(),
-      Byte.class.getTypeName(),
-      Short.class.getTypeName(),
-      Integer.class.getTypeName(),
-      Long.class.getTypeName(),
-      Float.class.getTypeName(),
-      Double.class.getTypeName(),
-      String.class.getTypeName()
+      Boolean.class.getCanonicalName(),
+      Byte.class.getCanonicalName(),
+      Short.class.getCanonicalName(),
+      Integer.class.getCanonicalName(),
+      Long.class.getCanonicalName(),
+      Float.class.getCanonicalName(),
+      Double.class.getCanonicalName(),
+      String.class.getCanonicalName()
   );
 
   public static boolean isSimpleObject(String fullQualifiedName) {
