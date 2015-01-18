@@ -3,6 +3,9 @@ package com.petterfactory.couchbaseliteorm.compiler;
 import com.petterfactory.couchbaseliteorm.Field;
 
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.*;
 
 /**
  * Created by brais on 7/1/15.
@@ -53,5 +56,20 @@ public class FieldModel {
   @Override
   public int hashCode() {
     return element.hashCode();
+  }
+
+  public FieldKind getKind() {
+    final FieldKind fieldKind;
+    final TypeMirror typeMirror = element.asType();
+    if (typeMirror.getKind().isPrimitive()) {
+      fieldKind = primitive;
+    } else if (isSimpleObject(typeMirror.toString())) {
+      fieldKind = simpleObject;
+    } else if (dependency != null) {
+      fieldKind = object;
+    } else {
+      fieldKind = list;
+    }
+    return fieldKind;
   }
 }

@@ -3,7 +3,6 @@ package com.samples;
 import com.petterfactory.couchbaseliteorm.Mapper;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -49,7 +48,7 @@ public class Person$$MapperTest {
     ASSERT.that(object.age).isEqualTo(23);
   }
 
-  @Test @Ignore // FIXME I'll fix this latter
+  @Test
   public void toObject_noAllProperties() {
     Map<String, Object> properties = new HashMap<>();
     properties.put("age", 23);
@@ -59,25 +58,25 @@ public class Person$$MapperTest {
     mapper.toObject(properties);
   }
 
-  @Test @Ignore // FIXME I'll fix this latter
+  @Test
   public void toObject_nullInPrimitiveTypes() {
     Map<String, Object> properties = new HashMap<>();
     properties.put("name", "Pepe");
     properties.put("age", null);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("The property \"age\" has the value null. It can't be set to a int.");
     mapper.toObject(properties);
   }
 
-  @Test @Ignore // FIXME I'll fix this latter
+  @Test
   public void toObject_incorrectTypes() {
     Map<String, Object> properties = new HashMap<>();
     properties.put("name", "Pepe");
     properties.put("age", true);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
+    thrown.expect(ClassCastException.class);
+    thrown.expectMessage("java.lang.Boolean cannot be cast to java.lang.Integer");
     mapper.toObject(properties);
   }
 

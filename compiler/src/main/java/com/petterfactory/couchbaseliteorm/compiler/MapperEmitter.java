@@ -70,15 +70,45 @@ public class MapperEmitter extends Emitter {
         .beginMethod(entityName, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
         .emitStatement("final %s object = new %s()", entityName, entityName);
     for (FieldModel fieldModel : model.getFields()) {
-      final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
-      if (mapperDependency == null) {
-        writer
-            .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey());
-      } else {
-        writer
-            .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getPropertyKey())
-            .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getName(), mapperDependency.getVariable(), fieldModel.getPropertyKey())
-            .endControlFlow();
+      switch (fieldModel.getKind()) {
+        case primitive:
+          writer
+              .beginControlFlow("try")
+              .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey())
+              .nextControlFlow("catch (NullPointerException e)")
+              .beginControlFlow("if (!properties.containsKey(\"%s\"))", fieldModel.getName(), fieldModel.getPropertyKey())
+              .emitStatement("throw new IllegalStateException(\"The property \\\"%s\\\" is not setted.\")", fieldModel.getPropertyKey())
+              .endControlFlow()
+              .emitStatement("throw new NullPointerException(\"The property \\\"%s\\\" has the value null. It can't be set to a %s.\")", fieldModel.getPropertyKey(), fieldModel.getType().getName())
+              .endControlFlow();
+          break;
+        case simpleObject:
+          writer
+              .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey())
+              .beginControlFlow("if (object.%s == null && !properties.containsKey(\"%s\"))", fieldModel.getName(), fieldModel.getPropertyKey())
+              .emitStatement("throw new IllegalStateException(\"The property \\\"%s\\\" is not setted.\")", fieldModel.getPropertyKey())
+              .endControlFlow();
+          break;
+        case object:
+          final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
+          writer
+              .beginControlFlow("if (!properties.containsKey(\"%s\"))", fieldModel.getPropertyKey())
+              .emitStatement("throw new IllegalStateException(\"The property \\\"%s\\\" is not setted.\")", fieldModel.getPropertyKey())
+              .endControlFlow()
+              .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getPropertyKey())
+              .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getName(), mapperDependency.getVariable(), fieldModel.getPropertyKey())
+              .nextControlFlow("else")
+              .emitStatement("object.%s = null", fieldModel.getName())
+              .endControlFlow();
+          break;
+        case list:
+          writer
+              .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey())
+              .beginControlFlow("if (object.%s == null && !properties.containsKey(\"%s\"))", fieldModel.getName(), fieldModel.getPropertyKey())
+              .emitStatement("throw new IllegalStateException(\"The property \\\"%s\\\" is not setted.\")", fieldModel.getPropertyKey())
+              .endControlFlow();
+          break;
+        default:
       }
     }
     writer

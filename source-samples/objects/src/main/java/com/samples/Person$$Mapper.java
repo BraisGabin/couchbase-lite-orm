@@ -11,8 +11,13 @@ public class Person$$Mapper implements Mapper<Person> {
   @Override
   public Person toObject(Map<String, Object> properties) {
     final Person object = new Person();
+    if (!properties.containsKey("address")) {
+      throw new IllegalStateException("The property \"address\" is not setted.");
+    }
     if (properties.get("address") != null) {
       object.address = addressMapper.toObject((Map<String, Object>) properties.get("address"));
+    } else {
+      object.address = null;
     }
     return object;
   }

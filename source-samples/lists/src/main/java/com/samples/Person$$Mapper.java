@@ -12,6 +12,9 @@ public class Person$$Mapper implements Mapper<Person>  {
   public Person toObject(Map<String, Object> properties) {
     final Person object = new Person();
     object.emails = (List<String>) properties.get("emails");
+    if (object.emails == null && !properties.containsKey("emails")) {
+      throw new IllegalStateException("The property \"emails\" is not setted.");
+    }
     return object;
   }
 
