@@ -7,7 +7,7 @@ public enum FieldKind {
   primitive,
   simpleObject,
   object,
-  list;
+  collection;
 
   private final static List<String> simpleObjects = Arrays.asList(
       Boolean.class.getCanonicalName(),

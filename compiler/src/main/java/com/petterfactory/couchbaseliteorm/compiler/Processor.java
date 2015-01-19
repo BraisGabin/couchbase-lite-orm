@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -28,6 +29,8 @@ public class Processor extends AbstractProcessor {
 
   private final static Set<Modifier> EMPTY_SET = Collections.emptySet();
   private final List<EntityModel> models = new ArrayList<>();
+  private Helper helper;
+  private Filer filer;
 
   @Override
   public SourceVersion getSupportedSourceVersion() {
@@ -40,6 +43,14 @@ public class Processor extends AbstractProcessor {
   }
 
   @Override
+  public synchronized void init(ProcessingEnvironment processingEnv) {
+    super.init(processingEnv);
+
+    this.helper = new Helper(processingEnv.getElementUtils(), processingEnv.getTypeUtils());
+    this.filer = processingEnv.getFiler();
+  }
+
+  @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     models.addAll(parseAnnotations(roundEnv));
     try {
@@ -48,7 +59,7 @@ public class Processor extends AbstractProcessor {
       }
       if (roundEnv.processingOver()) {
         for (EntityModel model : models) {
-          new MapperEmitter(model, processingEnv.getFiler()).emit();
+          new MapperEmitter(helper, filer, model).emit();
         }
         emitCouchbaseLiteOrmInternal(models);
       }

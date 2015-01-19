@@ -63,16 +63,18 @@ public class ProcessorTest {
   @Test
   public void listsCompile() throws IOException {
     final String sampleName = "lists";
-    final JavaFileObject inputFile = getJavaFileObject(compilerPath, sampleName, "com.samples.Person");
+    final JavaFileObject inputFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person");
+    final JavaFileObject inputFile2 = getJavaFileObject(compilerPath, sampleName, "com.samples.Address");
     final JavaFileObject expectedFile1 = getJavaFileObject(compilerPath, sampleName, "com.samples.Person$$Mapper");
-    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, sampleName, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
+    final JavaFileObject expectedFile2 = getJavaFileObject(compilerPath, sampleName, "com.samples.Address$$Mapper");
+    final JavaFileObject expectedFile3 = getJavaFileObject(compilerPath, sampleName, "com.petterfactory.couchbaseliteorm.CouchbaseLiteOrmInternal");
 
-    ASSERT.about(javaSource())
-        .that(inputFile)
+    ASSERT.about(javaSources())
+        .that(Arrays.asList(inputFile1, inputFile2))
         .processedWith(processors())
         .compilesWithoutError()
         .and()
-        .generatesSources(expectedFile1, expectedFile2);
+        .generatesSources(expectedFile1, expectedFile2, expectedFile3);
   }
 
   @Test

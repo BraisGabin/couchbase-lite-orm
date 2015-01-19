@@ -15,6 +15,10 @@ public class Person$$Mapper implements Mapper<Person>  {
     if (object.emails == null && !properties.containsKey("emails")) {
       throw new IllegalStateException("The property \"emails\" is not setted.");
     }
+    object.address = (List<Address>) properties.get("address");
+    if (object.address == null && !properties.containsKey("address")) {
+      throw new IllegalStateException("The property \"address\" is not setted.");
+    }
     return object;
   }
 
@@ -23,6 +27,7 @@ public class Person$$Mapper implements Mapper<Person>  {
     final Map<String, Object> properties = new HashMap<>();
     properties.put("type", "person");
     properties.put("emails", object.emails);
+    properties.put("address", object.address);
     return properties;
   }
 }

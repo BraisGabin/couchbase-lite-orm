@@ -5,12 +5,15 @@ import com.petterfactory.couchbaseliteorm.Field;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import java.util.List;
+
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import static com.google.common.truth.Truth.ASSERT;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +64,10 @@ public class FieldModelTest {
 
     FieldModel model = new FieldModel(element, null);
 
-    ASSERT.that(FieldKind.primitive).isEqualTo(model.getKind());
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(false);
+
+    ASSERT.that(FieldKind.primitive).isEqualTo(model.getKind(helper));
   }
 
   @Test
@@ -74,32 +80,41 @@ public class FieldModelTest {
 
     FieldModel model = new FieldModel(element, null);
 
-    ASSERT.that(FieldKind.simpleObject).isEqualTo(model.getKind());
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(false);
+
+    ASSERT.that(FieldKind.simpleObject).isEqualTo(model.getKind(helper));
   }
 
   @Test
   public void checkGetKind_object() {
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.getKind()).thenReturn(TypeKind.OTHER);
-    when(typeMirror.toString()).thenReturn("com.example.Foo");
+    when(typeMirror.toString()).thenReturn(Object.class.getCanonicalName());
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
     FieldModel model = new FieldModel(element, mock(EntityModel.class));
 
-    ASSERT.that(FieldKind.object).isEqualTo(model.getKind());
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(false);
+
+    ASSERT.that(FieldKind.object).isEqualTo(model.getKind(helper));
   }
 
   @Test
   public void checkGetKind_list() {
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.getKind()).thenReturn(TypeKind.OTHER);
-    when(typeMirror.toString()).thenReturn("com.example.Foo");
+    when(typeMirror.toString()).thenReturn(List.class.getCanonicalName());
     VariableElement element = mock(VariableElement.class);
     when(element.asType()).thenReturn(typeMirror);
 
     FieldModel model = new FieldModel(element, null);
 
-    ASSERT.that(FieldKind.list).isEqualTo(model.getKind());
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(true);
+
+    ASSERT.that(FieldKind.collection).isEqualTo(model.getKind(helper));
   }
 }

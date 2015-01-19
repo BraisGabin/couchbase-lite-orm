@@ -5,7 +5,11 @@ import com.petterfactory.couchbaseliteorm.Field;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.*;
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.collection;
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.isSimpleObject;
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.object;
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.primitive;
+import static com.petterfactory.couchbaseliteorm.compiler.FieldKind.simpleObject;
 
 /**
  * Created by brais on 7/1/15.
@@ -19,6 +23,21 @@ public class FieldModel {
     this.element = element;
     this.type = new TypeModel(element.asType());
     this.dependency = dependency;
+  }
+
+  public static FieldKind getKind(Helper helper, VariableElement element) {
+    final FieldKind fieldKind;
+    final TypeMirror typeMirror = element.asType();
+    if (typeMirror.getKind().isPrimitive()) {
+      fieldKind = primitive;
+    } else if (isSimpleObject(typeMirror.toString())) {
+      fieldKind = simpleObject;
+    } else if (helper.isACollection(typeMirror)) {
+      fieldKind = collection;
+    } else {
+      fieldKind = object;
+    }
+    return fieldKind;
   }
 
   public VariableElement getElement() {
@@ -58,18 +77,7 @@ public class FieldModel {
     return element.hashCode();
   }
 
-  public FieldKind getKind() {
-    final FieldKind fieldKind;
-    final TypeMirror typeMirror = element.asType();
-    if (typeMirror.getKind().isPrimitive()) {
-      fieldKind = primitive;
-    } else if (isSimpleObject(typeMirror.toString())) {
-      fieldKind = simpleObject;
-    } else if (dependency != null) {
-      fieldKind = object;
-    } else {
-      fieldKind = list;
-    }
-    return fieldKind;
+  public FieldKind getKind(Helper helper) {
+    return getKind(helper, element);
   }
 }

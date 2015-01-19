@@ -15,10 +15,12 @@ import javax.annotation.processing.Filer;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class MapperEmitter extends Emitter {
+  private final Helper helper;
   private final EntityModel model;
 
-  public MapperEmitter(EntityModel model, Filer filer) throws IOException {
+  public MapperEmitter(Helper helper, Filer filer, EntityModel model) throws IOException {
     super(filer, model.getMapper().getPackage(), model.getMapper().getName(), model.getElement());
+    this.helper = helper;
     this.model = model;
   }
 
@@ -70,7 +72,7 @@ public class MapperEmitter extends Emitter {
         .beginMethod(entityName, "toObject", EnumSet.of(PUBLIC), "Map<String, Object>", "properties")
         .emitStatement("final %s object = new %s()", entityName, entityName);
     for (FieldModel fieldModel : model.getFields()) {
-      switch (fieldModel.getKind()) {
+      switch (fieldModel.getKind(helper)) {
         case primitive:
           writer
               .beginControlFlow("try")
@@ -101,7 +103,7 @@ public class MapperEmitter extends Emitter {
               .emitStatement("object.%s = null", fieldModel.getName())
               .endControlFlow();
           break;
-        case list:
+        case collection:
           writer
               .emitStatement("object.%s = (%s) properties.get(\"%s\")", fieldModel.getName(), fieldModel.getType().getName(), fieldModel.getPropertyKey())
               .beginControlFlow("if (object.%s == null && !properties.containsKey(\"%s\"))", fieldModel.getName(), fieldModel.getPropertyKey())

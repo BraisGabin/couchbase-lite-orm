@@ -1,5 +1,6 @@
 package com.petterfactory.couchbaseliteorm;
 
+import com.samples.Address$$Mapper;
 import com.samples.Person;
 import com.samples.Person$$Mapper;
 
@@ -8,6 +9,7 @@ import com.samples.Person$$Mapper;
  */
 class CouchbaseLiteOrmInternal extends CouchbaseLiteOrm {
   CouchbaseLiteOrmInternal() {
+    final Address$$Mapper addressMapper = new Address$$Mapper();
     final Person$$Mapper personMapper = new Person$$Mapper();
     registerType("person", Person.class, personMapper);
   }
