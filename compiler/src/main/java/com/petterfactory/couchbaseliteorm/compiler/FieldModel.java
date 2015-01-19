@@ -56,8 +56,8 @@ public class FieldModel {
     return element.getAnnotation(Field.class).value();
   }
 
-  public MapperModel getDependencyMapperModel() {
-    return dependency == null ? null : dependency.getMapper();
+  public EntityModel getDependency() {
+    return dependency;
   }
 
   @Override

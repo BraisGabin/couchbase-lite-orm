@@ -55,12 +55,10 @@ public class MapperEmitter extends Emitter {
   }
 
   private void emitFields() throws IOException {
-    for (FieldModel fieldModel : model.getFields()) {
-      final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
-      if (mapperDependency != null) {
-        writer
-            .emitField(mapperDependency.getName(), mapperDependency.getVariable(), EnumSet.of(PUBLIC));
-      }
+    for (EntityModel dependency : model.getDependencies()) {
+      final MapperModel mapperDependency = dependency.getMapper();
+      writer
+          .emitField(mapperDependency.getName(), mapperDependency.getVariable(), EnumSet.of(PUBLIC));
     }
   }
 
@@ -92,13 +90,13 @@ public class MapperEmitter extends Emitter {
               .endControlFlow();
           break;
         case object:
-          final MapperModel mapperDependency = fieldModel.getDependencyMapperModel();
+          final EntityModel dependency = fieldModel.getDependency();
           writer
               .beginControlFlow("if (!properties.containsKey(\"%s\"))", fieldModel.getPropertyKey())
               .emitStatement("throw new IllegalStateException(\"The property \\\"%s\\\" is not setted.\")", fieldModel.getPropertyKey())
               .endControlFlow()
               .beginControlFlow("if (properties.get(\"%s\") != null)", fieldModel.getPropertyKey())
-              .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getName(), mapperDependency.getVariable(), fieldModel.getPropertyKey())
+              .emitStatement("object.%s = %s.toObject((Map<String, Object>) properties.get(\"%s\"))", fieldModel.getName(), dependency.getMapper().getVariable(), fieldModel.getPropertyKey())
               .nextControlFlow("else")
               .emitStatement("object.%s = null", fieldModel.getName())
               .endControlFlow();
@@ -130,13 +128,13 @@ public class MapperEmitter extends Emitter {
           .emitStatement("properties.put(\"type\", \"%s\")", model.getAnnotationValue());
     }
     for (FieldModel fieldModel : model.getFields()) {
-      final MapperModel dependencyMapper = fieldModel.getDependencyMapperModel();
-      if (dependencyMapper == null) {
+      final EntityModel dependency = fieldModel.getDependency();
+      if (dependency == null) {
         writer
             .emitStatement("properties.put(\"%s\", object.%s)", fieldModel.getPropertyKey(), fieldModel.getName());
       } else {
         writer
-            .emitStatement("properties.put(\"%s\", object.%s == null ? null : %s.toProperties(object.%s))", fieldModel.getPropertyKey(), fieldModel.getName(), dependencyMapper.getVariable(), fieldModel.getName());
+            .emitStatement("properties.put(\"%s\", object.%s == null ? null : %s.toProperties(object.%s))", fieldModel.getPropertyKey(), fieldModel.getName(), dependency.getMapper().getVariable(), fieldModel.getName());
       }
     }
     writer

@@ -92,8 +92,6 @@ public class Processor extends AbstractProcessor {
       }
     });
 
-    final Filer filer = this.processingEnv.getFiler();
-
     final String classPackage = "com.petterfactory.couchbaseliteorm";
     final String className = "CouchbaseLiteOrmInternal";
 
@@ -118,13 +116,11 @@ public class Processor extends AbstractProcessor {
     for (EntityModel model : models) {
       final MapperModel mapperModel = model.getMapper();
       final String mapperVariable = mapperModel.getVariable();
-      for (FieldModel fieldModel : model.getFields()) {
-        final MapperModel dependencyMapper = fieldModel.getDependencyMapperModel();
-        if (dependencyMapper != null) {
-          final String dependencyMapperVariable = dependencyMapper.getVariable();
-          writer
-              .emitStatement("%s.%s = %s", mapperVariable, dependencyMapperVariable, dependencyMapperVariable);
-        }
+      for (EntityModel dependency : model.getDependencies()) {
+        final MapperModel dependencyMapper = dependency.getMapper();
+        final String dependencyMapperVariable = dependencyMapper.getVariable();
+        writer
+            .emitStatement("%s.%s = %s", mapperVariable, dependencyMapperVariable, dependencyMapperVariable);
       }
     }
     for (EntityModel model : models) {

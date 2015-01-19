@@ -91,4 +91,15 @@ public class EntityModel implements EntityData {
   public List<FieldModel> getFields() {
     return fields;
   }
+
+  public List<EntityModel> getDependencies() {
+    List<EntityModel> dependencies = new ArrayList<>();
+    for (FieldModel fieldModel : fields) {
+      EntityModel entityModel = fieldModel.getDependency();
+      if (entityModel != null && !dependencies.contains(entityModel)) {
+        dependencies.add(entityModel);
+      }
+    }
+    return dependencies;
+  }
 }
