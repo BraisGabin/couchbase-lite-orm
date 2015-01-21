@@ -1,9 +1,6 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Mapper;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -17,7 +14,7 @@ import static com.google.common.truth.Truth.ASSERT;
 
 public class Person$$MapperTest {
 
-  private Mapper<Person> mapper;
+  private Person$$Mapper mapper;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -25,15 +22,16 @@ public class Person$$MapperTest {
   @Before
   public void setMapper() {
     this.mapper = new Person$$Mapper();
+    this.mapper.addressMapper = new Address$$Mapper();
   }
 
-  @Test @Ignore
+  @Test
   public void toObject() {
     final Map<String, Object> ad = new HashMap<>();
     ad.put("street", "calle");
     ad.put("number", "17");
-    final List<String> emails =  Arrays.asList("hola@sample.com");
-    final List<Map<String, Object>> address =  Arrays.asList(ad);
+    final List<String> emails = Arrays.asList("hola@sample.com");
+    final List<Map<String, Object>> address = Arrays.asList(ad);
 
     final Map<String, Object> properties = new HashMap<>();
     properties.put("emails", emails);
@@ -52,9 +50,15 @@ public class Person$$MapperTest {
   public void toProperties() {
     Person object = new Person();
     object.emails = Arrays.asList("hola@sample.com");
+    object.address = Arrays.asList(new Address("calle", "17"));
 
-    final Map<String, Object> stringObjectMap = mapper.toProperties(object);
+    final Map<String, Object> properties = mapper.toProperties(object);
 
-    ASSERT.that(stringObjectMap.get("emails")).isEqualTo(Arrays.asList("hola@sample.com"));
+    final Map<String, Object> ad = new HashMap<>();
+    ad.put("street", "calle");
+    ad.put("number", "17");
+
+    ASSERT.that(properties.get("emails")).isEqualTo(Arrays.asList("hola@sample.com"));
+    ASSERT.that(properties.get("address")).isEqualTo(Arrays.asList(ad));
   }
 }

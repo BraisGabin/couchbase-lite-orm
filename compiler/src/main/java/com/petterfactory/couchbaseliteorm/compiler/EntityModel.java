@@ -11,6 +11,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * Created by brais on 7/1/15.
@@ -26,7 +28,7 @@ public class EntityModel implements EntityData {
     this.fields = new ArrayList<>();
   }
 
-  public void fillFieldsList(List<EntityModel> models) {
+  public void fillFieldsList(Helper helper, List<EntityModel> models) {
     fields.clear();
     List<? extends Element> enclosedElements = element.getEnclosedElements();
     for (Element element : enclosedElements) {
@@ -34,7 +36,19 @@ public class EntityModel implements EntityData {
         final Field annotation = element.getAnnotation(Field.class);
         if (annotation != null) {
           final VariableElement variableElement = (VariableElement) element;
-          fields.add(new FieldModel(variableElement, findModel(models, variableElement.asType().toString())));
+          final EntityModel dependency;
+          if (FieldModel.getKind(helper, variableElement) == FieldKind.collection) {
+            final DeclaredType typeMirror = (DeclaredType) variableElement.asType();
+            final List<? extends TypeMirror> typeArguments = typeMirror.getTypeArguments();
+            if (typeArguments.isEmpty()) {
+              dependency = null;
+            } else {
+              dependency = findModel(models, typeArguments.get(0).toString());
+            }
+          } else {
+            dependency = findModel(models, variableElement.asType().toString());
+          }
+          fields.add(new FieldModel(variableElement, dependency));
         }
       }
     }

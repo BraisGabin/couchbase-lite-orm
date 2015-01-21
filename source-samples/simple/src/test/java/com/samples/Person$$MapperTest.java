@@ -54,7 +54,7 @@ public class Person$$MapperTest {
     properties.put("age", 23);
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The property \"name\" is not setted.");
+    thrown.expectMessage("The property \"name\" is not set.");
     mapper.toObject(properties);
   }
 

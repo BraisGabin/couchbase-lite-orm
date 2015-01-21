@@ -12,13 +12,13 @@ public class Person$$Mapper implements Mapper<Person> {
     final Person object = new Person();
     object.name = (String) properties.get("name");
     if (object.name == null && !properties.containsKey("name")) {
-      throw new IllegalStateException("The property \"name\" is not setted.");
+      throw new IllegalStateException("The property \"name\" is not set.");
     }
     try {
       object.age = (int) properties.get("age");
     } catch (NullPointerException e) {
       if (!properties.containsKey("age")) {
-        throw new IllegalStateException("The property \"age\" is not setted.");
+        throw new IllegalStateException("The property \"age\" is not set.");
       }
       throw new NullPointerException("The property \"age\" has the value null. It can't be set to a int.");
     }

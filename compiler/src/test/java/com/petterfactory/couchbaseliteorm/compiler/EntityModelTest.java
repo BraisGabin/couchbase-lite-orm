@@ -19,9 +19,11 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import static com.google.common.truth.Truth.ASSERT;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,6 +136,7 @@ public class EntityModelTest {
     Field annotation = mock(Field.class);
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.toString()).thenReturn("com.example.Foo");
+    when(typeMirror.getKind()).thenReturn(TypeKind.OTHER);
     final Element e2 = mock(VariableElement.class);
     when(e2.getKind()).thenReturn(ElementKind.FIELD);
     when(e2.getAnnotation(Matchers.<Class<Field>>anyObject())).thenReturn(annotation);
@@ -150,7 +153,11 @@ public class EntityModelTest {
     });
 
     EntityModel entity = new EntityModel(element);
-    entity.fillFieldsList(new ArrayList<EntityModel>());
+
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(false);
+
+    entity.fillFieldsList(helper, new ArrayList<EntityModel>());
 
     ASSERT.that(Arrays.asList(new FieldModel((VariableElement) e2, null))).isEqualTo(entity.getFields());
   }
@@ -163,6 +170,7 @@ public class EntityModelTest {
     Field annotation = mock(Field.class);
     TypeMirror typeMirror = mock(TypeMirror.class);
     when(typeMirror.toString()).thenReturn("com.example.Foo");
+    when(typeMirror.getKind()).thenReturn(TypeKind.OTHER);
     final Element e2 = mock(VariableElement.class);
     when(e2.getKind()).thenReturn(ElementKind.FIELD);
     when(e2.getAnnotation(Matchers.<Class<Annotation>>anyObject())).thenReturn(annotation);
@@ -176,7 +184,11 @@ public class EntityModelTest {
     });
 
     EntityModel entity = new EntityModel(element);
-    entity.fillFieldsList(new ArrayList<EntityModel>());
+
+    Helper helper = mock(Helper.class);
+    when(helper.isACollection(any(TypeMirror.class))).thenReturn(false);
+
+    entity.fillFieldsList(helper, new ArrayList<EntityModel>());
 
     ASSERT.that(Arrays.asList(new FieldModel((VariableElement) e2, null))).isEqualTo(entity.getFields());
   }

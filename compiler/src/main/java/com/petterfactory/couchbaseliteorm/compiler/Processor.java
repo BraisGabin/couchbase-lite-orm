@@ -55,7 +55,7 @@ public class Processor extends AbstractProcessor {
     models.addAll(parseAnnotations(roundEnv));
     try {
       for (EntityModel model : models) {
-        model.fillFieldsList(models);
+        model.fillFieldsList(helper, models);
       }
       if (roundEnv.processingOver()) {
         for (EntityModel model : models) {

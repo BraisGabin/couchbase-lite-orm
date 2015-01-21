@@ -12,11 +12,11 @@ public class Address$$Mapper implements Mapper<Address>  {
     final Address object = new Address();
     object.street = (String) properties.get("street");
     if (object.street == null && !properties.containsKey("street")) {
-      throw new IllegalStateException("The property \"street\" is not setted.");
+      throw new IllegalStateException("The property \"street\" is not set.");
     }
     object.number = (String) properties.get("number");
     if (object.number == null && !properties.containsKey("number")) {
-      throw new IllegalStateException("The property \"number\" is not setted.");
+      throw new IllegalStateException("The property \"number\" is not set.");
     }
     return object;
   }
