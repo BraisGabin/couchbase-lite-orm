@@ -1,7 +1,7 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Entity;
-import com.petterfactory.couchbaseliteorm.Field;
+import com.braisgabin.couchbaseliteorm.Entity;
+import com.braisgabin.couchbaseliteorm.Field;
 
 import java.util.List;
 

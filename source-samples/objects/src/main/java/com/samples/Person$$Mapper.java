@@ -1,6 +1,6 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Mapper;
+import com.braisgabin.couchbaseliteorm.Mapper;
 
 import java.util.HashMap;
 import java.util.Map;

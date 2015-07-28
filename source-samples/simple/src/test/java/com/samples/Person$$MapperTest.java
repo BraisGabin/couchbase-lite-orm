@@ -1,6 +1,6 @@
 package com.samples;
 
-import com.petterfactory.couchbaseliteorm.Mapper;
+import com.braisgabin.couchbaseliteorm.Mapper;
 
 import org.junit.Before;
 import org.junit.Rule;
