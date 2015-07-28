@@ -5,8 +5,6 @@ dependencies {
 
     compile project(':core')
 
-    compile 'com.couchbase.lite:couchbase-lite-java-core:1.0.3'
-
     testCompile 'junit:junit:4.12'
     testCompile 'com.google.truth:truth:0.25'
 }

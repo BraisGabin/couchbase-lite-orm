@@ -3,12 +3,20 @@ apply plugin: 'java'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
+sourceSets {
+    test {
+        java {
+            srcDir 'src/test/java'
+            srcDir '../source-samples/simple/src/main/java'
+        }
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile 'com.couchbase.lite:couchbase-lite-java-core:1.0.4'
 
-    testCompile project(':source-samples:simple')
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.8'
     testCompile 'org.powermock:powermock-module-junit4:1.6.1'
