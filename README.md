@@ -9,6 +9,25 @@ This is the first approach to implement an ORM for Couchbase Lite in Java. I'm s
 - You will only need to annotate your classes.
 - This library will not use reflection. Reflection is *too* slow.
 
+## Download
+
+Gradle:
+
+```groovy
+compile 'com.braisgabin.couchbaseliteorm:couchbaseliteorm:0.1.0-SNAPSHOT'
+provided 'com.braisgabin.couchbaseliteorm:couchbaseliteorm-compiler:0.1.0-SNAPSHOT'
+```
+
+You must add the Sonatype's snapshots repository:
+```groovy
+repositories {
+  maven { url 'https://oss.sonatype.org/content/groups/public' }
+}
+```
+
+Or you can download the `.jar` directly from the [Sonatype's snapshots repository][snapshots].
+
+
 ## Easter Egg
 The annotations in Java have *a* weakness: their value can't be `null`. You can read this in [the JSL][JSL]:
 
@@ -21,6 +40,7 @@ For this reason I'm forced to use the [magic string][magic-string] `"☕️💩"
 ## License
 Apache License 2.0
 
+ [snapshots]: https://oss.sonatype.org/content/groups/public/com/braisgabin/couchbaseliteorm/
  [JSL]: http://docs.oracle.com/javase/specs/jls/se7/html/jls-9.html#jls-9.7.1
  [so-default-null]: http://stackoverflow.com/a/1178272/842697
  [magic-string]: http://en.wikipedia.org/wiki/Magic_string
