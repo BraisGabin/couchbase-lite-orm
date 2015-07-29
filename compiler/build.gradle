@@ -18,3 +18,5 @@ dependencies {
     testCompile 'com.google.truth:truth:0.25'
     testCompile files(System.getenv("JAVA_HOME") + "/lib/tools.jar")
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

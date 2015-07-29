@@ -23,3 +23,5 @@ dependencies {
     testCompile 'org.powermock:powermock-api-mockito:1.6.1'
     testCompile 'com.google.truth:truth:0.25'
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
